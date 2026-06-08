@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+@keyframes slot-reel {
+  0%   { transform: translateY(160%); opacity: 0; }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes slot-reel-land {
+  0%   { transform: translateY(160%); opacity: 0; }
+  70%  { transform: translateY(-8%);  opacity: 1; }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+
+.slot-reel-window {
+  overflow: hidden;
+  display: block;
+  line-height: 1.1;
+}
+
+.slot-reel {
+  display: block;
+  animation: slot-reel 0.08s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.slot-reel--slow {
+  animation-duration: 0.18s;
+}
+
+.slot-reel--land {
+  animation: slot-reel-land 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes spin-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0); }
+  50%       { box-shadow: 0 0 20px 5px rgba(201, 168, 76, 0.5); }
+}
+
+.spin-awaiting {
+  animation: spin-pulse 1.4s ease-in-out infinite;
+}
+
+body {
+  background-color: #000000;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ── Button variants ─────────────────────────────────────────────────────── */
+
+.btn-gold {
+  background: #C9A84C;
+  color: #000000;
+  border: none;
+  transition: background 0.12s ease, transform 0.1s ease, box-shadow 0.12s ease;
+}
+.btn-gold:not(:disabled):hover {
+  background: #D8B95E;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(201, 168, 76, 0.35);
+}
+
+.btn-outline {
+  background: transparent;
+  color: #C9A84C;
+  border: 1px solid #C9A84C;
+  transition: background 0.12s ease, transform 0.1s ease, box-shadow 0.12s ease;
+}
+.btn-outline:not(:disabled):hover {
+  background: rgba(201, 168, 76, 0.08);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px rgba(201, 168, 76, 0.2);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #888888;
+  border: 1px solid #222222;
+  transition: color 0.12s ease, border-color 0.12s ease, background 0.12s ease, transform 0.1s ease;
+}
+.btn-ghost:not(:disabled):hover {
+  color: #ffffff;
+  border-color: #555555;
+  background: rgba(255, 255, 255, 0.04);
+  transform: translateY(-1px);
+}
+
+/* ── ERA BALL logo button ─────────────────────────────────────────────────── */
+
+.logo-btn {
+  transition: color 0.12s ease, text-shadow 0.12s ease;
+}
+.logo-btn:hover {
+  color: #D8B95E !important;
+  text-shadow: 0 0 28px rgba(201, 168, 76, 0.45);
+}
+
+/* ── Era grid buttons ─────────────────────────────────────────────────────── */
+
+.era-btn {
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease,
+              transform 0.1s ease, box-shadow 0.12s ease;
+}
+.era-btn:not(:disabled):not(.era-btn--active):hover {
+  background: #1a1a1a !important;
+  border-color: #C9A84C !important;
+  color: #C9A84C !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(201, 168, 76, 0.18);
+}
+
+/* ── DEV toggle button ───────────────────────────────────────────────────── */
+
+.dev-btn {
+  transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+}
+.dev-btn:not(.dev-btn--active):hover {
+  color: #C9A84C !important;
+  border-color: #C9A84C !important;
+}
+
+/* ── Roster player rows ──────────────────────────────────────────────────── */
+
+.roster-row {
+  transition: background 0.1s ease, border-left-color 0.1s ease;
+}
+.roster-row:not(.roster-row--selected):hover {
+  background: rgba(201, 168, 76, 0.1) !important;
+  border-left-color: rgba(201, 168, 76, 0.45) !important;
+}
+
+/* ── Court slot ──────────────────────────────────────────────────────────── */
+
+.court-slot {
+  transition: border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+}
+.court-slot:not(.court-slot--filled):hover {
+  border-color: rgba(201, 168, 76, 0.55) !important;
+  background: rgba(201, 168, 76, 0.04) !important;
+  box-shadow: inset 0 0 12px rgba(201, 168, 76, 0.06);
+}
+
+/* ── Modal close button ──────────────────────────────────────────────────── */
+
+.modal-close {
+  transition: color 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.modal-close:hover {
+  color: #ffffff !important;
+  border-color: #555555 !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+}
