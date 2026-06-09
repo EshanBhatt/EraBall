@@ -146,6 +146,19 @@ const PLAYER_ANCHORS: Record<string, AnchorType> = {
   'Stephen Curry':   'off',
   'Steve Nash':      'off',
   'Chris Paul':      'off',
+  'Magic Johnson':   'off',
+  'Luka Doncic':     'off',
+  'Rajon Rondo':     'off',
+  'Kareem Abdul-Jabbar': 'off',
+  'John Stockton':   'off',
+  'James Harden':    'off',
+  // Defensive Anchors (+12)
+  'Tony Allen':      'def',
+  'Scottie Pippen':  'def',
+  'Kawhi Leonard':   'def',
+  'Bill Russell':    'def',
+  'Hakeem Olajuwon': 'def',
+  'Kevin Garnett':   'def',
 }
 
 export function applyAnchors(player: Player): Player {
