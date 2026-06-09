@@ -30,8 +30,8 @@ const BEBAS = { fontFamily: 'var(--font-bebas), "Bebas Neue", impact, sans-serif
 // ─── Tier backgrounds ─────────────────────────────────────────────────────────
 function tierBg(player: Player): string {
   const r = playerBaseRating(player, player.era as Era)
-  if (r >= 56) return 'linear-gradient(145deg, #0f0620 0%, #1e0c3d 40%, #130826 70%, #0a0415 100%)'  // S: amethyst
-  if (r >= 47) return 'linear-gradient(145deg, #2e2000 0%, #6b4800 28%, #3e2a00 60%, #1c1200 100%)'  // A: gold
+  if (r >= 54) return 'linear-gradient(145deg, #0f0620 0%, #1e0c3d 40%, #130826 70%, #0a0415 100%)'  // S: amethyst
+  if (r >= 46) return 'linear-gradient(145deg, #2e2000 0%, #6b4800 28%, #3e2a00 60%, #1c1200 100%)'  // A: gold
   if (r >= 38) return 'linear-gradient(145deg, #001508 0%, #002d12 40%, #001c0a 70%, #000e05 100%)'  // B: emerald
   if (r >= 31) return 'linear-gradient(145deg, #040e1c 0%, #0a1e3a 40%, #061428 70%, #020810 100%)'  // C: sapphire
   if (r >= 24) return 'linear-gradient(145deg, #1a0900 0%, #2e1200 40%, #1e0c00 70%, #100600 100%)'  // D: bronze
@@ -748,6 +748,7 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart }: {
   const [slots, setSlots] = useState<CourtSlot[]>(emptySlots())
   const [spinning, setSpinning] = useState(false)
   const [rosterPool, setRosterPool] = useState<Player[]>([])
+  const [sortBy, setSortBy] = useState<'PTS' | 'REB' | 'AST' | 'TS'>('PTS')
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
   const [pendingSlotIdx, setPendingSlotIdx] = useState<number | null>(null)
   const [highlightEmpty, setHighlightEmpty] = useState(false)
@@ -1119,7 +1120,10 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart }: {
                   <GoldLabel>{rosterPool.length} available</GoldLabel>
                 </div>
                 <div style={{ border: `1px solid ${G.border}`, maxHeight: 220, overflowY: 'auto' }}>
-                  {rosterPool.map(p => {
+                  {[...rosterPool].sort((a, b) => {
+                    if (sortBy === 'TS') return calcTS(b) - calcTS(a)
+                    return (b[sortBy] ?? 0) - (a[sortBy] ?? 0)
+                  }).map(p => {
                     const ts = (calcTS(p) * 100).toFixed(1)
                     const isSel = selectedPlayer?.person_id === p.person_id
                     return (
@@ -1139,16 +1143,33 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart }: {
                           <div className="text-xs" style={{ color: G.grey }}>{p.position}</div>
                         </div>
                         <div className="flex gap-3 text-xs shrink-0">
-                          <span style={{ color: G.gold, fontWeight: 700 }}>{p.PTS?.toFixed(1)}</span>
-                          <span style={{ color: G.grey }}>{p.REB?.toFixed(1)}</span>
-                          <span style={{ color: G.grey }}>{p.AST?.toFixed(1)}</span>
-                          <span style={{ color: G.greyDark }}>{ts}%</span>
+                          <span style={{ color: sortBy === 'PTS' ? G.gold : G.grey, fontWeight: sortBy === 'PTS' ? 700 : 400 }}>{p.PTS?.toFixed(1)}</span>
+                          <span style={{ color: sortBy === 'REB' ? G.gold : G.grey, fontWeight: sortBy === 'REB' ? 700 : 400 }}>{p.REB?.toFixed(1)}</span>
+                          <span style={{ color: sortBy === 'AST' ? G.gold : G.grey, fontWeight: sortBy === 'AST' ? 700 : 400 }}>{p.AST?.toFixed(1)}</span>
+                          <span style={{ color: sortBy === 'TS' ? G.gold : G.greyDark, fontWeight: sortBy === 'TS' ? 700 : 400 }}>{ts}%</span>
                         </div>
                       </button>
                     )
                   })}
                 </div>
-                <div className="text-xs mt-1 text-right" style={{ color: G.greyDark }}>PTS · REB · AST · TS%</div>
+                <div className="flex justify-end gap-1 mt-1">
+                  {(['PTS', 'REB', 'AST', 'TS'] as const).map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setSortBy(s)}
+                      className="text-xs uppercase tracking-widest px-2 py-0.5"
+                      style={{
+                        color: sortBy === s ? G.gold : G.greyDark,
+                        background: 'none',
+                        border: 'none',
+                        borderBottom: sortBy === s ? `1px solid ${G.gold}` : '1px solid transparent',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {s === 'TS' ? 'TS%' : s}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
