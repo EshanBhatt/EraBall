@@ -2236,7 +2236,7 @@ function SimulationScreen({ slots, coach, simEra, onRestart }: {
               <span style={{ ...BEBAS, fontSize: 28, color: G.gold }}>{dispRating(tr)}</span>
               <span className="text-xs" style={{ color: G.grey }}>
                 Off {coach.offGuru ? '+6%' : gradeBonus(coach.offGrade)} · Def {coach.defGuru ? '+6%' : gradeBonus(coach.defGrade)}
-                {coach.champ > 0 && <span style={{ color: G.goldDim, marginLeft: 6 }}>+{(coachChampBonus(coach) * 100).toFixed(1)}% titles</span>}
+                {coach.champ > 0 && <span style={{ color: G.goldDim, marginLeft: 6 }}>+{(coachChampBonus(coach) * 100).toFixed(1)}% coach titles</span>}
               </span>
             </div>
           </div>
@@ -2812,10 +2812,12 @@ export default function Home() {
       {phase === 'coach-draft' && <CoachDraftScreen coaches={coaches} onCoachSelected={c => { setCoach(c); setPhase('simulation') }} onRestart={restart} />}
       {phase === 'simulation' && coach && <SimulationScreen slots={slots} coach={coach} simEra={simEra} onRestart={restart} />}
 
+      {/* Desktop: fixed bottom-right */}
       <a
         href="https://x.com/Eshan_Design"
         target="_blank"
         rel="noopener noreferrer"
+        className="suggestions-btn-desktop"
         style={{
           position: 'fixed', bottom: 20, right: 20, zIndex: 500,
           fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase',
@@ -2829,6 +2831,28 @@ export default function Home() {
       >
         Suggestions or bugs? DM me
       </a>
+
+      {/* Mobile: inline at page bottom, doesn't float over content */}
+      <div className="suggestions-btn-mobile" style={{ textAlign: 'center', padding: '24px 0 32px' }}>
+        <a
+          href="https://x.com/Eshan_Design"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase',
+            color: G.greyDark, border: `1px solid ${G.border}`,
+            padding: '6px 12px', background: G.surface,
+            textDecoration: 'none', opacity: 0.7,
+          }}
+        >
+          Suggestions or bugs? DM me
+        </a>
+      </div>
+
+      <style>{`
+        @media (min-width: 641px) { .suggestions-btn-mobile { display: none; } }
+        @media (max-width: 640px)  { .suggestions-btn-desktop { display: none !important; } }
+      `}</style>
     </>
   )
 }
