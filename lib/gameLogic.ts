@@ -692,11 +692,13 @@ export function simulatePlayoffs(
       // Special performance: inflate one player's stats
       let special: SpecialPerformance | undefined
       if (specialTrigger && entries.length > 0) {
-        // Pick player weighted by adjusted rating
-        let roll = Math.random() * totalAdjusted
+        // Pick player weighted by adjusted rating × ring multiplier (champions more likely to star)
+        const ringWeights = entries.map(e => e.pr.adjusted * (1 + (e.pr.player.rings ?? 0) * 0.20))
+        const totalRingWeighted = ringWeights.reduce((s, w) => s + w, 0)
+        let roll = Math.random() * totalRingWeighted
         let starIdx = 0
         for (let i = 0; i < entries.length; i++) {
-          roll -= entries[i].pr.adjusted
+          roll -= ringWeights[i]
           if (roll <= 0) { starIdx = i; break }
         }
         const boostFactor = 1.6 + Math.random() * 0.9
@@ -710,9 +712,9 @@ export function simulatePlayoffs(
           // suppress — leave boosted stats but don't flag as special
         } else {
           const label =
-            sp >= 45                           ? `${sp}-point eruption` :
+            sp >= 45                           ? `${sp}-point scoring eruption` :
             sp >= 10 && sr >= 10 && sa >= 10   ? `Triple-double: ${sp}/${sr}/${sa}` :
-            sp >= 35                           ? `${sp}-point takeover` :
+            sp >= 35                           ? `${sp}-point scoring takeover` :
             sr >= 18                           ? `${sp}pts/${sr}reb dominant` :
             sa >= 14                           ? `${sp}pts/${sa}ast playmaking` :
             isBench                            ? `${sp}-point showcase off the bench` :
