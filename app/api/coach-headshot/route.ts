@@ -5,7 +5,8 @@ export async function GET(request: NextRequest) {
   if (!name) return new NextResponse('Missing name', { status: 400 })
 
   try {
-    const title = encodeURIComponent(name.replace(/ /g, '_'))
+    const clean = name.replace(/\*/g, '').trim()
+    const title = encodeURIComponent(`${clean} basketball coach`.replace(/ /g, '_'))
     const summaryRes = await fetch(
       `https://en.wikipedia.org/api/rest_v1/page/summary/${title}`,
       { headers: { 'User-Agent': 'EraBall/1.0 (NBA draft simulator)' } }
