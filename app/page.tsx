@@ -1762,9 +1762,9 @@ function computeSeasonAwards(
   return awards
 }
 
-function computeFinalsMVP(playoffStats: PlayerSeasonStats[]): PlayerSeasonStats | null {
-  if (!playoffStats.length) return null
-  return [...playoffStats].sort((a, b) => b.PTS !== a.PTS ? b.PTS - a.PTS : b.AST - a.AST)[0]
+function computeFinalsMVP(finalsStats: PlayerSeasonStats[]): PlayerSeasonStats | null {
+  if (!finalsStats.length) return null
+  return [...finalsStats].sort((a, b) => b.PTS !== a.PTS ? b.PTS - a.PTS : b.AST - a.AST)[0]
 }
 
 function SeasonAwardsPanel({ awards }: { awards: AwardEntry[] }) {
@@ -1990,8 +1990,8 @@ function SimulationScreen({ slots, coach, simEra, onRestart }: {
     ? computeSeasonAwards(seasonStats, pr, wins, DEFAULT_THRESHOLDS)
     : []
 
-  const finalsMVP = playoffDone && playoffResult?.champion && playoffResult.playoffStats.length > 0
-    ? computeFinalsMVP(playoffResult.playoffStats)
+  const finalsMVP = playoffDone && playoffResult?.champion && playoffResult.finalsStats.length > 0
+    ? computeFinalsMVP(playoffResult.finalsStats)
     : null
 
 
@@ -2350,7 +2350,9 @@ function SimulationScreen({ slots, coach, simEra, onRestart }: {
                   <span className="mx-2" style={{ color: G.border }}>·</span>
                   {finalsMVP.AST.toFixed(1)} APG
                   <span className="mx-2" style={{ color: G.border }}>·</span>
-                  {((finalsMVP.FG_PCT + finalsMVP.FT_PCT) / 2 * 100).toFixed(1)}% TS
+                  {(calcTS(finalsMVP.player) * 100).toFixed(1)}% TS
+                  <span className="mx-2" style={{ color: G.border }}>·</span>
+                  Finals ({finalsMVP.GP}G)
                 </div>
               </div>
             </div>

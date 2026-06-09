@@ -152,4 +152,5 @@ export interface PlayoffResult {
   champion: boolean
   allGames: PlayoffGame[]
   playoffStats: PlayerSeasonStats[]
+  finalsStats: PlayerSeasonStats[]
 }

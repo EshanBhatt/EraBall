@@ -689,6 +689,10 @@ export function simulatePlayoffs(
   const accumPTS = new Array(entries.length).fill(0)
   const accumREB = new Array(entries.length).fill(0)
   const accumAST = new Array(entries.length).fill(0)
+  const finalsPTS = new Array(entries.length).fill(0)
+  const finalsREB = new Array(entries.length).fill(0)
+  const finalsAST = new Array(entries.length).fill(0)
+  let finalsGames = 0
 
   const rounds: PlayoffResult['rounds'] = []
   const allGames: PlayoffGame[] = []
@@ -774,7 +778,13 @@ export function simulatePlayoffs(
         accumPTS[i] += scaledPTS[i]
         accumREB[i] += gameREB[i]
         accumAST[i] += gameAST[i]
+        if (r === 3) {
+          finalsPTS[i] += scaledPTS[i]
+          finalsREB[i] += gameREB[i]
+          finalsAST[i] += gameAST[i]
+        }
       }
+      if (r === 3) finalsGames++
 
       if (win) sW++; else sL++
       allGames.push({ win, roundIndex: r, teamScore, oppScore, gameInSeries, leaders, special })
@@ -816,5 +826,24 @@ export function simulatePlayoffs(
     FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + randn() * 0.025)),
   }))
 
-  return { rounds, champion, allGames, playoffStats }
+  const finalsStats: PlayerSeasonStats[] = entries.map(({ pr, assignedMPG }, i) => ({
+    player:  pr.player,
+    slot:    pr.slot,
+    GP:      finalsGames,
+    MPG:     assignedMPG,
+    PTS:     finalsGames > 0 ? finalsPTS[i] / finalsGames : 0,
+    REB:     finalsGames > 0 ? finalsREB[i] / finalsGames : 0,
+    AST:     finalsGames > 0 ? finalsAST[i] / finalsGames : 0,
+    STL:     stlBlkTov[i].STL,
+    BLK:     stlBlkTov[i].BLK,
+    TOV:     stlBlkTov[i].TOV,
+    FG_PCT:  Math.min(0.80, Math.max(0.20, (pr.player.FG_PCT ?? 0.45) + randn() * 0.025)),
+    FG3_PCT: PRE_THREE_PT_ERAS.includes(simEra) ? null
+      : pr.player.FG3_PCT != null
+        ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + randn() * 0.025))
+        : null,
+    FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + randn() * 0.025)),
+  }))
+
+  return { rounds, champion, allGames, playoffStats, finalsStats }
 }
