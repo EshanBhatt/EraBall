@@ -312,6 +312,10 @@ const ResultCard = React.forwardRef<HTMLDivElement, ResultCardProps>(
             marginBottom: 12,
           }}>
             {starters.map(s => {
+              const allAwards = [
+                ...(playerAwards[s.player.person_id] ?? []),
+                ...(finalsMVPId === s.player.person_id ? ['FIN MVP'] : []),
+              ]
               const statRows = [
                 { lbl: 'PPG', val: s.PTS.toFixed(1), lead: s.PTS === maxPPG },
                 { lbl: 'RPG', val: s.REB.toFixed(1), lead: s.REB === maxRPG },
@@ -319,6 +323,7 @@ const ResultCard = React.forwardRef<HTMLDivElement, ResultCardProps>(
                 { lbl: 'STL', val: s.STL.toFixed(1), lead: s.STL === maxSTL },
                 { lbl: 'BLK', val: s.BLK.toFixed(1), lead: s.BLK === maxBLK },
                 { lbl: 'TS%', val: `${calcTS(s)}%`,  lead: false },
+                ...(allAwards.length > 0 ? [{ lbl: 'Awards', val: allAwards.join(' · '), lead: true }] : []),
               ]
               return (
                 <div
@@ -373,39 +378,11 @@ const ResultCard = React.forwardRef<HTMLDivElement, ResultCardProps>(
                     fontSize: 11,
                     color: C.grey,
                     letterSpacing: '0.28em',
-                    marginBottom: 4,
+                    marginBottom: 10,
                     flexShrink: 0,
                   }}>
                     {eraLabel(s.player.era)}
                   </div>
-
-                  {/* ④b Award pills */}
-                  {(() => {
-                    const awards = [
-                      ...(playerAwards[s.player.person_id] ?? []),
-                      ...(finalsMVPId === s.player.person_id ? ['FIN MVP'] : []),
-                    ]
-                    return awards.length > 0 ? (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, justifyContent: 'center', marginBottom: 6, flexShrink: 0 }}>
-                        {awards.map(a => (
-                          <span key={a} style={{
-                            fontFamily: INTER,
-                            fontSize: 7,
-                            fontWeight: 700,
-                            letterSpacing: '0.12em',
-                            textTransform: 'uppercase',
-                            color: a === 'FIN MVP' || a === 'MVP' ? C.black : C.gold,
-                            background: a === 'FIN MVP' || a === 'MVP' ? C.gold : 'transparent',
-                            border: `1px solid ${C.gold}`,
-                            padding: '1px 4px',
-                            lineHeight: 1.5,
-                          }}>
-                            {a}
-                          </span>
-                        ))}
-                      </div>
-                    ) : <div style={{ marginBottom: 6, flexShrink: 0 }} />
-                  })()}
 
                   {/* ⑤ Stats — immediately below era, fills remaining height.
                       Extra space distributes between rows (space-around), never
@@ -489,15 +466,13 @@ const ResultCard = React.forwardRef<HTMLDivElement, ResultCardProps>(
                   ].map(a => (
                     <span key={a} style={{
                       fontFamily: INTER,
-                      fontSize: 7,
+                      fontSize: 10,
                       fontWeight: 700,
-                      letterSpacing: '0.1em',
+                      letterSpacing: '0.12em',
                       textTransform: 'uppercase',
-                      color: a === 'FIN MVP' || a === 'MVP' ? C.black : C.gold,
-                      background: a === 'FIN MVP' || a === 'MVP' ? C.gold : 'transparent',
-                      border: `1px solid ${C.gold}`,
-                      padding: '1px 4px',
-                      lineHeight: 1.5,
+                      color: C.gold,
+                      position: 'relative',
+                      top: 4,
                       flexShrink: 0,
                     }}>
                       {a}
