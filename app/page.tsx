@@ -331,13 +331,20 @@ function PlayerCard({ player, onDragStart, displayEra, activeEra }: { player: Pl
 }
 
 // ─── Court slot ───────────────────────────────────────────────────────────────
-function CourtSlotView({ slot, onClick, onDrop, highlighted, pendingPlayer, activePlayer, simEra }: {
+function CourtSlotView({ slot, onClick, onDrop, highlighted, pendingPlayer, activePlayer, simEra, justLocked }: {
   slot: CourtSlot; onClick: () => void; onDrop: () => void; highlighted: boolean
-  pendingPlayer?: Player | null; activePlayer?: Player | null; simEra?: Era
+  pendingPlayer?: Player | null; activePlayer?: Player | null; simEra?: Era; justLocked?: boolean
 }) {
   const [dragOver, setDragOver] = useState(false)
+  const [pendingKey, setPendingKey] = useState(0)
+  const wasPendingRef = useRef(false)
   const confirmed = slot.player
   const isPending = !confirmed && !!pendingPlayer
+
+  useEffect(() => {
+    if (isPending && !wasPendingRef.current) setPendingKey(k => k + 1)
+    wasPendingRef.current = isPending
+  }, [isPending])
 
   const { label: pendingFitLabel } = pendingPlayer ? calcFitPenalty(pendingPlayer, slot.position) : { label: null }
 
@@ -381,6 +388,8 @@ function CourtSlotView({ slot, onClick, onDrop, highlighted, pendingPlayer, acti
       onDragLeave={() => setDragOver(false)}
       onDrop={() => { setDragOver(false); onDrop() }}
     >
+      {isPending && <div className="slot-pending-glow" />}
+      {justLocked && <div className="slot-lock-overlay" />}
       {/* Position label + minutes */}
       <div className="absolute top-1 left-1.5" style={{ lineHeight: 1 }}>
         <div style={{ ...BEBAS, color: G.goldDim, fontSize: 11, letterSpacing: '0.1em' }}>
@@ -426,7 +435,7 @@ function CourtSlotView({ slot, onClick, onDrop, highlighted, pendingPlayer, acti
           </div>
         </div>
       ) : isPending && pendingPlayer ? (
-        <div className="flex flex-col items-center px-2 pb-2 pt-5 gap-1.5" style={{ opacity: 0.7 }}>
+        <div key={pendingKey} className="flex flex-col items-center px-2 pb-2 pt-5 gap-1.5 slot-player-enter">
           <PlayerHeadshot personId={pendingPlayer.person_id} size={52} initial={pendingPlayer.position?.[0]} />
           <div className="w-full text-center min-w-0">
             <div className="font-semibold text-white leading-tight truncate" style={{ fontSize: 11 }}>{pendingPlayer.full_name}</div>
@@ -739,6 +748,7 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart }: {
   const [devTeam, setDevTeam] = useState(NBA_TEAMS[0])
   const [devEra, setDevEra] = useState<Era>(ALL_ERAS[6]) // default 10s
   const [devPlayerSearch, setDevPlayerSearch] = useState('')
+  const [justLockedIdx, setJustLockedIdx] = useState<number | null>(null)
 
   const filledCount = slots.filter(s => s.player !== null).length
 
@@ -843,7 +853,10 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart }: {
     if (pendingSlotIdx === null || !selectedPlayer) return
     // selectedPlayer already has era stats applied from when the pool was built
     const { penalty, label } = calcFitPenalty(selectedPlayer, slots[pendingSlotIdx].position)
-    setSlots(prev => prev.map((s, i) => i === pendingSlotIdx ? { ...s, player: selectedPlayer, fitPenalty: penalty, fitLabel: label } : s))
+    const lockedIdx = pendingSlotIdx
+    setJustLockedIdx(lockedIdx)
+    setTimeout(() => setJustLockedIdx(null), 650)
+    setSlots(prev => prev.map((s, i) => i === lockedIdx ? { ...s, player: selectedPlayer, fitPenalty: penalty, fitLabel: label } : s))
     setDraftedIds(prev => new Set([...prev, selectedPlayer.person_id]))
     setRosterPool([])
     setSelectedPlayer(null); setPendingSlotIdx(null); setHighlightEmpty(false)
@@ -1130,13 +1143,13 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart }: {
               <div className="space-y-2">
                 <GoldLabel>
                   {pendingSlotIdx !== null
-                    ? `→ ${slots[pendingSlotIdx].position} — confirm or choose another slot`
+                    ? `→ ${slots[pendingSlotIdx].position} — lock or choose another slot`
                     : 'Click a court slot to place'}
                 </GoldLabel>
                 <PlayerCard player={selectedPlayer} displayEra={lockedEra ?? undefined} activeEra={lockedEra ?? undefined} />
                 {pendingSlotIdx !== null && (
                   <Btn onClick={confirmPick} variant="gold" className="w-full py-3">
-                    Confirm — {slots[pendingSlotIdx].position}
+                    Lock — {slots[pendingSlotIdx].position}
                   </Btn>
                 )}
               </div>
@@ -1168,7 +1181,7 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart }: {
                 <CourtSlotView key={slot.position} slot={slot}
                   highlighted={!!selectedPlayer && !slot.player}
                   pendingPlayer={pendingSlotIdx === i ? selectedPlayer : null}
-                  activePlayer={selectedPlayer} simEra={simEra}
+                  activePlayer={selectedPlayer} simEra={simEra} justLocked={justLockedIdx === i}
                   onClick={() => previewSlot(i)} onDrop={() => previewSlot(i)} />
               ))}
             </div>
@@ -1183,6 +1196,7 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart }: {
                 <CourtSlotView key={slot.position} slot={slot}
                   highlighted={!!selectedPlayer && !slot.player}
                   pendingPlayer={pendingSlotIdx === i + 5 ? selectedPlayer : null} simEra={simEra}
+                  justLocked={justLockedIdx === i + 5}
                   onClick={() => previewSlot(i + 5)} onDrop={() => previewSlot(i + 5)} />
               ))}
             </div>

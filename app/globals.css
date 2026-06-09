@@ -144,6 +144,46 @@ body {
   box-shadow: inset 0 0 12px rgba(201, 168, 76, 0.06);
 }
 
+/* ── Court slot animations ───────────────────────────────────────────────── */
+
+/* Pulsing border overlay while a player is staged (pending) */
+@keyframes slot-pending-pulse {
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 1; }
+}
+.slot-pending-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid rgba(201, 168, 76, 0.65);
+  animation: slot-pending-pulse 1.6s ease-in-out infinite;
+  z-index: 2;
+}
+
+/* Slide-up enter for pending player content */
+@keyframes slot-player-enter {
+  0%   { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 0.7; transform: translateY(0); }
+}
+.slot-player-enter {
+  animation: slot-player-enter 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* One-shot gold flash when a player is locked in */
+@keyframes slot-lock-flash {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+.slot-lock-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(201, 168, 76, 0.32);
+  box-shadow: inset 0 0 35px 8px rgba(201, 168, 76, 0.28);
+  animation: slot-lock-flash 0.6s ease-out forwards;
+  z-index: 3;
+}
+
 /* ── Modal close button ──────────────────────────────────────────────────── */
 
 .modal-close {
