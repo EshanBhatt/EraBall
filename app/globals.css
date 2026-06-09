@@ -30,6 +30,7 @@
   animation: slot-reel-land 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+
 @keyframes spin-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0); }
   50%       { box-shadow: 0 0 20px 5px rgba(201, 168, 76, 0.5); }

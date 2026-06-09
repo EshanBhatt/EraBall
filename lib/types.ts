@@ -121,6 +121,7 @@ export interface PlayoffRound {
   seriesWins: number
   seriesLosses: number
   advanced: boolean
+  winsNeeded: number
 }
 
 export interface GameLeader { name: string; val: number }

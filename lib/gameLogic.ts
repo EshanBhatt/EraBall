@@ -20,6 +20,14 @@ const FLEX_PLAYERS: Record<string, SlotPosition[]> = {
   'Larry Bird':              ['PG', 'SG', 'SF', 'PF'],
 }
 
+// ─── Position lock ─────────────────────────────────────────────────────────────
+// Hard positional constraints: 0 penalty only at listed slots.
+// These players do NOT carry a flex tag — they are strictly these positions.
+const POSITION_LOCK: Record<string, SlotPosition[]> = {
+  'Tracy McGrady':  ['SG', 'SF'],
+  'Peyton Watson':  ['SF', 'PF'],
+}
+
 export function applyFlexTag(player: Player): Player {
   const flex = FLEX_PLAYERS[player.full_name]
   if (!flex) return player
@@ -46,11 +54,13 @@ const PLAYER_RINGS: Record<string, number> = {
   'Klay Thompson': 4, 'Robert Parish': 4, 'Tony Parker': 4, 'Manu Ginobili': 4,
   'Andre Iguodala': 4, 'Bill Sharman': 4, 'John Salley': 4,
   'Kevon Looney': 4, 'Horace Grant': 4,
+  'Jamaal Wilkes': 4, 'Kurt Rambis': 4,
   // 3
   'Larry Bird': 3, 'Kevin McHale': 3, 'James Worthy': 3, 'Byron Scott': 3,
   'Dwyane Wade': 3, 'Udonis Haslem': 3, 'A.C. Green': 3, 'Mychal Thompson': 3,
   'Danny Green': 3, 'Rick Fox': 3, 'Toni Kukoc': 3, 'Luc Longley': 3,
   'Dennis Johnson': 3, 'John Paxson': 3, 'Bill Cartwright': 3,
+  'James Jones': 3,
   // 2
   'Wilt Chamberlain': 2, 'Isiah Thomas': 2, 'Joe Dumars': 2, 'Kevin Durant': 2,
   'Chris Bosh': 2, 'Bill Laimbeer': 2, 'Ray Allen': 2,
@@ -59,21 +69,28 @@ const PLAYER_RINGS: Record<string, number> = {
   'Pau Gasol': 2, 'Lamar Odom': 2, 'Andrew Bynum': 2,
   'David Robinson': 2, 'Shane Battier': 2, 'Mario Chalmers': 2,
   'Danny Ainge': 2,
+  'Willis Reed': 2, 'Walt Frazier': 2, 'Dave DeBusschere': 2, 'Bill Bradley': 2,
+  'Bob McAdoo': 2, 'Bob Dandridge': 2,
+  'Mike Miller': 2, 'Norris Cole': 2,
   // 1
   'Jerry West': 1, 'Oscar Robertson': 1, 'Julius Erving': 1, 'Moses Malone': 1,
   'Paul Pierce': 1, 'Kevin Garnett': 1, 'Kyrie Irving': 1, 'Dirk Nowitzki': 1,
   'Jason Kidd': 1, 'Chauncey Billups': 1, 'Rasheed Wallace': 1, 'Ben Wallace': 1,
+  'Rick Barry': 1, 'Nate Archibald': 1,
+  'Earl Monroe': 1,
   // 2024-25 OKC
   'Shai Gilgeous-Alexander': 1, 'Jalen Williams': 1, 'Chet Holmgren': 1,
   'Luguentz Dort': 1, 'Isaiah Hartenstein': 1,
   'Aaron Wiggins': 1, 'Kenrich Williams': 1, 'Ajay Mitchell': 1,
-  'Isaiah Joe': 1, 'Ousmane Dieng': 1, 'Nikola Topic': 1,
+  'Isaiah Joe': 1, 'Ousmane Dieng': 1, 'Nikola Topic': 1, 'Cason Wallace': 1,
   // 2023-24 Celtics
   'Jayson Tatum': 1, 'Jaylen Brown': 1, 'Al Horford': 1,
   'Kristaps Porzingis': 1, 'Derrick White': 1, 'Payton Pritchard': 1,
+  'Sam Hauser': 1, 'Luke Kornet': 1, 'Neemias Queta': 1,
   // 2022-23 Nuggets
   'Nikola Jokic': 1, 'Jamal Murray': 1, 'Aaron Gordon': 1, 'Michael Porter Jr.': 1,
-  'Bruce Brown': 1,
+  'Bruce Brown': 1, 'Christian Braun': 1, 'Jeff Green': 1, 'DeAndre Jordan': 1,
+  'Reggie Jackson': 1, 'Vlatko Cancar': 1, 'Zeke Nnaji': 1,
   // 2021-22 Warriors
   'Andrew Wiggins': 1, 'Jordan Poole': 1, 'Gary Payton II': 1, 'Otto Porter Jr.': 1,
   // 2020-21 Bucks
@@ -87,6 +104,7 @@ const PLAYER_RINGS: Record<string, number> = {
   // 2015-16 Cavs
   'Kevin Love': 1, 'Tristan Thompson': 1, 'J.R. Smith': 1,
   'Richard Jefferson': 1, 'Matthew Dellavedova': 1, 'Channing Frye': 1,
+  'Iman Shumpert': 1,
   // 2013-14 Spurs
   'Boris Diaw': 1, 'Patty Mills': 1, 'Marco Belinelli': 1,
   // 2010-11 Mavs
@@ -235,9 +253,31 @@ export function calcFitPenalty(player: Player, slot: SlotPosition): { penalty: 0
   if (slot.startsWith('B')) {
     return { penalty: 0, label: 'Position Fit' }
   }
+  // Position lock: hard constraint — only listed slots are penalty-free
+  const locked = POSITION_LOCK[player.full_name]
+  if (locked) {
+    if (locked.includes(slot)) return { penalty: 0, label: 'Position Fit' }
+    const STARTER_ORDER: SlotPosition[] = ['PG', 'SG', 'SF', 'PF', 'C']
+    const slotIdx = STARTER_ORDER.indexOf(slot)
+    const minDist = Math.min(...locked
+      .filter(p => STARTER_ORDER.includes(p))
+      .map(p => Math.abs(STARTER_ORDER.indexOf(p) - slotIdx)))
+    if (minDist <= 1) return { penalty: 0.10, label: 'Positional Penalty -10%' }
+    return { penalty: 0.25, label: 'Major Penalty -25%' }
+  }
   // FLEX tag: player can play this slot without penalty
   if (player.flexPositions?.includes(slot)) {
     return { penalty: 0, label: 'Position Fit' }
+  }
+  // Flex player at a non-flex slot: proximity penalty instead of raw position string logic
+  if (player.flexPositions && player.flexPositions.length > 0) {
+    const STARTER_ORDER: SlotPosition[] = ['PG', 'SG', 'SF', 'PF', 'C']
+    const slotIdx = STARTER_ORDER.indexOf(slot)
+    const minDist = Math.min(...player.flexPositions
+      .filter(p => STARTER_ORDER.includes(p))
+      .map(p => Math.abs(STARTER_ORDER.indexOf(p) - slotIdx)))
+    if (minDist <= 1) return { penalty: 0.10, label: 'Positional Penalty -10%' }
+    return { penalty: 0.25, label: 'Major Penalty -25%' }
   }
 
   const pos = player.position ?? ''
@@ -292,10 +332,13 @@ export function calcEraModifier(player: Player, simEra: Era): number {
   const dist = Math.abs(playerIdx - simIdx)
   const table = playerIdx > simIdx ? ERA_MOD_BACKWARD : ERA_MOD_FORWARD
   let mod = table[Math.min(dist, table.length - 1)]
-  // Extra penalty for pre-3pt era players (50s/60s/70s) playing in a 3pt era
-  if (THREE_PT_ERAS.includes(simEra) && PRE_THREE_PT_ERAS.includes(player.era)) {
+  // Extra penalty for pre-3pt era players (50s/60s/70s) in eras where 3PT matters
+  if (PRE_THREE_PT_ERAS.includes(player.era)) {
     const fg3 = player.FG3_PCT ?? 0
-    if (fg3 < 0.2) mod -= 0.10
+    if (fg3 < 0.2) {
+      if (THREE_PT_ERAS.includes(simEra) || simEra === '00s') mod -= 0.10
+      else if (simEra === '90s') mod -= 0.05
+    }
   }
   return Math.max(mod, 0.50)
 }
@@ -487,7 +530,7 @@ export function simulateSeason(
   const offBonus = coachBonus(coachOffGrade)
 
   for (let i = 0; i < 82; i++) {
-    const oppRating = OPP_BASELINE + randn() * OPP_SPREAD
+    const oppRating = OPP_BASELINE * playerDefFactor + randn() * OPP_SPREAD
     const teamRoll  = teamRating + randn() * GAME_NOISE
     const oppRoll   = oppRating  + randn() * GAME_NOISE
     const win       = teamRoll > oppRoll
@@ -553,6 +596,17 @@ export const SLOT_POSITIONS: SlotPosition[] = ['PG', 'SG', 'SF', 'PF', 'C', 'B1'
 
 const PLAYOFF_ROUND_NAMES = ['First Round', 'Semifinals', 'Conference Finals', 'NBA Finals']
 
+export function firstRoundWinsNeeded(simEra: Era): number {
+  if (['50s', '60s', '70s'].includes(simEra)) return 2  // Best of 3
+  if (['80s', '90s'].includes(simEra))        return 3  // Best of 5
+  return 4                                               // Best of 7
+}
+
+export function firstRoundLabel(simEra: Era): string {
+  const w = firstRoundWinsNeeded(simEra)
+  return w === 2 ? 'Best of 3' : w === 3 ? 'Best of 5' : 'Best of 7'
+}
+
 // Opponent mean rating per round based on team's regular season wins.
 // Better records earn easier first-round matchups; all rounds get harder.
 function playoffOppRating(round: number, teamWins: number): number {
@@ -612,16 +666,17 @@ export function simulatePlayoffs(
 
   for (let r = 0; r < 4; r++) {
     const oppMean = playoffOppRating(r + 1, regularSeasonWins)
+    const winsNeeded = r === 0 ? firstRoundWinsNeeded(simEra) : 4
     let sW = 0, sL = 0
 
-    while (sW < 4 && sL < 4) {
+    while (sW < winsNeeded && sL < winsNeeded) {
       const gameInSeries = sW + sL + 1
 
       // Special performance: 15% chance — boosts win probability slightly
       const specialTrigger = Math.random() < 0.15
       const specialBoost = specialTrigger ? 2 + Math.random() * 4 : 0
 
-      const oppRating = oppMean + randn() * OPP_SPREAD
+      const oppRating = oppMean * playerDefFactor + randn() * OPP_SPREAD
       const win = effectiveTeamRating + specialBoost + randn() * GAME_NOISE > oppRating + randn() * GAME_NOISE
       const { teamScore, oppScore } = generateGameScore(expectedTeamScore, playerDefFactor, defBonus, offBonus, win, simEra)
 
@@ -691,8 +746,8 @@ export function simulatePlayoffs(
       allGames.push({ win, roundIndex: r, teamScore, oppScore, gameInSeries, leaders, special })
     }
 
-    const advanced = sW === 4
-    rounds.push({ name: PLAYOFF_ROUND_NAMES[r], seriesWins: sW, seriesLosses: sL, advanced })
+    const advanced = sW === winsNeeded
+    rounds.push({ name: PLAYOFF_ROUND_NAMES[r], seriesWins: sW, seriesLosses: sL, advanced, winsNeeded })
     if (!advanced) break
     if (r === 3) champion = true
   }
