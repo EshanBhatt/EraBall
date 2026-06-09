@@ -531,6 +531,20 @@ function CourtSlotView({ slot, onClick, onDrop, highlighted, pendingPlayer, acti
   )
 }
 
+// Basketball SVG cursor encoded as data URI
+const BASKETBALL_CURSOR = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='13' fill='%23E8651A' stroke='%23000' stroke-width='1.2'/%3E%3Cpath d='M14 1 C14 1 14 27 14 27' stroke='%23000' stroke-width='1.4' fill='none'/%3E%3Cpath d='M1 14 C1 14 27 14 27 14' stroke='%23000' stroke-width='1.4' fill='none'/%3E%3Cpath d='M3.5 5.5 C10 14 3.5 22.5 3.5 22.5' stroke='%23000' stroke-width='1.4' fill='none'/%3E%3Cpath d='M24.5 5.5 C18 14 24.5 22.5 24.5 22.5' stroke='%23000' stroke-width='1.4' fill='none'/%3E%3C/svg%3E") 14 14, auto`
+
+const ERA_THEME: Record<Era, { border: string; topGlow: string; cursor: string }> = {
+  '50s': { border: G.border, topGlow: 'transparent', cursor: 'default' },
+  '60s': { border: G.border, topGlow: 'transparent', cursor: 'default' },
+  '70s': { border: G.border, topGlow: 'transparent', cursor: 'default' },
+  '80s': { border: '#3d1010', topGlow: 'rgba(180,20,20,0.08)', cursor: 'default' },
+  '90s': { border: '#3a0a0a', topGlow: 'rgba(160,10,10,0.12)', cursor: BASKETBALL_CURSOR },
+  '00s': { border: '#1a0a30', topGlow: 'rgba(90,40,160,0.10)', cursor: BASKETBALL_CURSOR },
+  '10s': { border: '#0a1a30', topGlow: 'rgba(30,80,160,0.08)', cursor: 'default' },
+  '20s': { border: G.border, topGlow: 'transparent', cursor: 'default' },
+}
+
 const ERA_YEARS: Record<Era, string> = {
   '50s': '1950–1959', '60s': '1960–1969', '70s': '1970–1979', '80s': '1980–1989',
   '90s': '1990–1999', '00s': '2000–2009', '10s': '2010–2019', '20s': '2020–present',
@@ -637,11 +651,18 @@ function HowToPlayModal({ onClose }: { onClose: () => void }) {
 }
 
 // ─── Shared top bar ───────────────────────────────────────────────────────────
-function TopBar({ onRestart, right }: { onRestart: () => void; right?: React.ReactNode }) {
+function TopBar({ onRestart, right, era }: { onRestart: () => void; right?: React.ReactNode; era?: Era | null }) {
   const [showHelp, setShowHelp] = useState(false)
+  const theme = era ? ERA_THEME[era] : null
   return (
     <>
-      <div style={{ borderBottom: `1px solid ${G.border}`, background: G.surface }}>
+      <div style={{
+        borderBottom: `1px solid ${theme?.border ?? G.border}`,
+        background: theme?.topGlow && theme.topGlow !== 'transparent'
+          ? `linear-gradient(to right, ${theme.topGlow}, ${G.surface}, ${theme.topGlow})`
+          : G.surface,
+        transition: 'border-color 0.4s ease, background 0.4s ease',
+      }}>
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <button onClick={onRestart} className="logo-btn" style={{ ...BEBAS, fontSize: 22, letterSpacing: '0.3em', color: G.gold, cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}>
             ERA BALL
@@ -725,8 +746,8 @@ function EraSelection({ onEraSelected, onRestart }: { onEraSelected: (era: Era) 
   })
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: G.black }}>
-      <TopBar onRestart={onRestart} />
+    <div className="min-h-screen flex flex-col" style={{ background: G.black, cursor: era ? ERA_THEME[era].cursor : 'default', transition: 'cursor 0s' }}>
+      <TopBar onRestart={onRestart} era={era} />
 
       <div className="flex-1 flex flex-col items-center justify-center px-4 gap-10" style={{ overflow: 'hidden' }}>
         {/* Selected era display */}
