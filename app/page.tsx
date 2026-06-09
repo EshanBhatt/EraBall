@@ -1270,7 +1270,7 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart }: {
                   )}
                 </div>
                 <div className="flex items-center justify-end gap-1 mt-1">
-                  <span className="text-xs uppercase tracking-widest mr-1" style={{ color: G.greyDark }}>Sort by:</span>
+                  <span className="hidden sm:inline text-xs uppercase tracking-widest mr-1" style={{ color: G.greyDark }}>Sort by:</span>
                   {(['SPECIAL', 'PTS', 'REB', 'AST', 'TS', 'STL', 'BLK'] as const).map(s => (
                     <button
                       key={s}
