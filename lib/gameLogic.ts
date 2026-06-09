@@ -647,9 +647,24 @@ export function simulateSeason(
   const varPTSWeights = weights.map((w, i) => w.PTS * seasonVar[i])
   const totalVarPTS = varPTSWeights.reduce((a, b) => a + b, 0)
 
+  // ── Team context efficiency modifiers ──────────────────────────────────
+  // Spacing: # of real shooters (FG3_PCT ≥ 36%) vs baseline of 2
+  const shooterCount  = entries.filter(e => (e.pr.player.FG3_PCT ?? 0) >= 0.36).length
+  const spacingMod    = (shooterCount - 2) * 0.006        // ±0.6% per shooter vs baseline
+  // Playmaking: top AST on team lifts shot quality for everyone
+  const topAST        = Math.max(...entries.map(e => e.pr.player.AST ?? 0))
+  const playmakingMod = Math.min(0.018, Math.max(-0.012, (topAST - 5) * 0.003))
+  // Team quality: stronger teams create better shots
+  const teamQualityMod = (teamRating - 70) * 0.0008
+
   const seasonStats: PlayerSeasonStats[] = entries.map(({ pr, assignedMPG }, i) => {
     const w = weights[i]
     const v = seasonVar[i]
+    // Role stretch: player forced into heavier usage than their natural level
+    const naturalMPG     = Math.min(38, Math.max(10, (pr.player.PTS ?? 0) * 1.6))
+    const stretchPenalty = -Math.max(0, (assignedMPG - naturalMPG) / 28) * 0.06
+    const fgCtx  = spacingMod + playmakingMod + teamQualityMod + stretchPenalty
+    const ftCtx  = stretchPenalty * 0.4   // FT% mostly skill, only slightly role-affected
     return {
       player:  pr.player,
       slot:    pr.slot,
@@ -661,12 +676,12 @@ export function simulateSeason(
       STL:     w.STL * v,
       BLK:     w.BLK * v,
       TOV:     w.TOV * v,
-      FG_PCT:  Math.min(0.80, Math.max(0.20, (pr.player.FG_PCT ?? 0.45) + randn() * 0.040)),
+      FG_PCT:  Math.min(0.80, Math.max(0.20, (pr.player.FG_PCT ?? 0.45) + fgCtx + randn() * 0.040)),
       FG3_PCT: PRE_THREE_PT_ERAS.includes(simEra) ? null
         : pr.player.FG3_PCT != null
-          ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + randn() * 0.040))
+          ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + fgCtx + randn() * 0.040))
           : null,
-      FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + randn() * 0.035)),
+      FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + ftCtx + randn() * 0.035)),
     }
   })
 
@@ -871,8 +886,19 @@ export function simulatePlayoffs(
     return { STL: imputeSTL(pr.player) * s, BLK: imputeBLK(pr.player) * s, TOV: imputeTOV(pr.player) * s }
   })
 
+  // ── Team context for playoff efficiency ──────────────────────────────────
+  const pShooterCount  = entries.filter(e => (e.pr.player.FG3_PCT ?? 0) >= 0.36).length
+  const pSpacingMod    = (pShooterCount - 2) * 0.006
+  const pTopAST        = Math.max(...entries.map(e => e.pr.player.AST ?? 0))
+  const pPlaymakingMod = Math.min(0.018, Math.max(-0.012, (pTopAST - 5) * 0.003))
+  const pTeamQualityMod = (teamRating - 70) * 0.0008
+
   const playoffStats: PlayerSeasonStats[] = entries.map(({ pr, assignedMPG }, i) => {
-    const effBoost = playoffRingBoost(pr.player.rings ?? 0) * 0.5
+    const effBoost       = playoffRingBoost(pr.player.rings ?? 0) * 0.5
+    const naturalMPG     = Math.min(38, Math.max(10, (pr.player.PTS ?? 0) * 1.6))
+    const stretchPenalty = -Math.max(0, (assignedMPG - naturalMPG) / 28) * 0.06
+    const fgCtx  = pSpacingMod + pPlaymakingMod + pTeamQualityMod + stretchPenalty
+    const ftCtx  = stretchPenalty * 0.4
     return {
       player:  pr.player,
       slot:    pr.slot,
@@ -884,17 +910,21 @@ export function simulatePlayoffs(
       STL:     stlBlkTov[i].STL,
       BLK:     stlBlkTov[i].BLK,
       TOV:     stlBlkTov[i].TOV,
-      FG_PCT:  Math.min(0.80, Math.max(0.20, (pr.player.FG_PCT ?? 0.45) + effBoost + randn() * 0.045)),
+      FG_PCT:  Math.min(0.80, Math.max(0.20, (pr.player.FG_PCT ?? 0.45) + effBoost + fgCtx + randn() * 0.045)),
       FG3_PCT: PRE_THREE_PT_ERAS.includes(simEra) ? null
         : pr.player.FG3_PCT != null
-          ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + effBoost + randn() * 0.045))
+          ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + effBoost + fgCtx + randn() * 0.045))
           : null,
-      FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + effBoost + randn() * 0.045)),
+      FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + effBoost + ftCtx + randn() * 0.045)),
     }
   })
 
   const finalsStats: PlayerSeasonStats[] = entries.map(({ pr, assignedMPG }, i) => {
-    const effBoost = playoffRingBoost(pr.player.rings ?? 0) * 0.5
+    const effBoost       = playoffRingBoost(pr.player.rings ?? 0) * 0.5
+    const naturalMPG     = Math.min(38, Math.max(10, (pr.player.PTS ?? 0) * 1.6))
+    const stretchPenalty = -Math.max(0, (assignedMPG - naturalMPG) / 28) * 0.06
+    const fgCtx  = pSpacingMod + pPlaymakingMod + pTeamQualityMod + stretchPenalty
+    const ftCtx  = stretchPenalty * 0.4
     return {
       player:  pr.player,
       slot:    pr.slot,
@@ -906,12 +936,12 @@ export function simulatePlayoffs(
       STL:     stlBlkTov[i].STL,
       BLK:     stlBlkTov[i].BLK,
       TOV:     stlBlkTov[i].TOV,
-      FG_PCT:  Math.min(0.80, Math.max(0.20, (pr.player.FG_PCT ?? 0.45) + effBoost + randn() * 0.045)),
+      FG_PCT:  Math.min(0.80, Math.max(0.20, (pr.player.FG_PCT ?? 0.45) + effBoost + fgCtx + randn() * 0.045)),
       FG3_PCT: PRE_THREE_PT_ERAS.includes(simEra) ? null
         : pr.player.FG3_PCT != null
-          ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + effBoost + randn() * 0.045))
+          ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + effBoost + fgCtx + randn() * 0.045))
           : null,
-      FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + effBoost + randn() * 0.045)),
+      FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + effBoost + ftCtx + randn() * 0.045)),
     }
   })
 
