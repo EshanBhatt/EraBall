@@ -523,8 +523,8 @@ function CourtSlotView({ slot, onClick, onDrop, highlighted, pendingPlayer, acti
                 Era Fit {Math.round(mod * 100)}%
               </div>
             ) })()}
-            <div style={{ fontSize: 9, color: G.goldDim, letterSpacing: '0.08em', textTransform: 'uppercase' }} className="mt-1 sm:hidden">Pending · Tap to lock</div>
-            <div style={{ fontSize: 9, color: G.goldDim, letterSpacing: '0.08em', textTransform: 'uppercase' }} className="mt-1 hidden sm:block">Pending · Click to lock</div>
+            <div style={{ fontSize: 9, color: G.goldDim, letterSpacing: '0.08em', textTransform: 'uppercase' }} className="mt-1 sm:hidden">Pending · Tap to lock {slot.position}</div>
+            <div style={{ fontSize: 9, color: G.goldDim, letterSpacing: '0.08em', textTransform: 'uppercase' }} className="mt-1 hidden sm:block">Pending · Click to lock {slot.position}</div>
           </div>
         </div>
       ) : (
