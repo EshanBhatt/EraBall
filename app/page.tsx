@@ -756,12 +756,12 @@ function EraSelection({ onEraSelected, onRestart }: { onEraSelected: (era: Era) 
               <div className="text-xs uppercase tracking-[0.4em] mb-2" style={{ color: G.grey }}>Simulation Era</div>
               <div style={{ position: 'relative', width: '100%', maxWidth: 680, margin: '0 auto' }}>
                 {/* Era banner image — place 2400×480px WebPs in /public/era-banners/<era>.webp */}
-                {/* Desktop: CSS mask fade on all 4 edges */}
+                {/* CSS mask fades all 4 edges — works on both desktop and mobile Safari */}
                 <img
                   key={displayEra}
                   src={`/era-banners/${displayEra}.webp`}
                   alt=""
-                  className="era-banner-img hidden sm:block"
+                  className="era-banner-img"
                   onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
                   style={{
                     position: 'absolute', inset: 0, width: '100%', height: '100%',
@@ -772,16 +772,6 @@ function EraSelection({ onEraSelected, onRestart }: { onEraSelected: (era: Era) 
                     WebkitMaskComposite: 'destination-in',
                   }}
                 />
-                {/* Mobile: no CSS mask — gradient overlay div fades edges instead */}
-                <img
-                  key={`${displayEra}-mobile`}
-                  src={`/era-banners/${displayEra}.webp`}
-                  alt=""
-                  className="sm:hidden"
-                  onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', zIndex: 0 }}
-                />
-                <div className="sm:hidden" style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none', background: 'radial-gradient(ellipse 80% 85% at center, transparent 35%, #000000 100%)' }} />
                 <div style={{ ...BEBAS, fontSize: 'clamp(80px, 18vw, 160px)', lineHeight: 0.9, color: spinning ? G.greyDark : G.white, letterSpacing: '0.02em', position: 'relative', zIndex: 2, padding: '24px 48px', textShadow: '0 2px 4px rgba(0,0,0,0.9), 0 4px 24px rgba(0,0,0,0.8), 0 0 60px rgba(0,0,0,0.6)' }}>
                   <span className="slot-reel-window">
                     <span
