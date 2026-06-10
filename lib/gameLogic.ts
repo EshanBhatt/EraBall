@@ -511,8 +511,8 @@ export function calcTeamRating(slots: CourtSlot[], coach: Coach, simEra: Era): {
 
   let starterSum = 0
   let starterCount = 0
-  let benchSum = 0
-  let benchCount = 0
+  let benchWeightedSum = 0
+  let benchTotalMinutes = 0
 
   for (const slot of slots) {
     if (!slot.player) continue
@@ -523,13 +523,14 @@ export function calcTeamRating(slots: CourtSlot[], coach: Coach, simEra: Era): {
       starterSum += adjusted
       starterCount++
     } else {
-      benchSum += adjusted
-      benchCount++
+      const mpg = SLOT_MPG[slot.position]
+      benchWeightedSum += adjusted * mpg
+      benchTotalMinutes += mpg
     }
   }
 
   const starterAvg = starterCount > 0 ? starterSum / starterCount : 0
-  const benchAvg = benchCount > 0 ? benchSum / benchCount : 0
+  const benchAvg = benchTotalMinutes > 0 ? benchWeightedSum / benchTotalMinutes : 0
   const rawRating = starterAvg * 0.70 + benchAvg * 0.30
 
   const offBonus = effectiveCoachBonus(coach, 'off')
