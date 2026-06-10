@@ -23,7 +23,7 @@ const G = {
   borderSub:'#1A1A1A',
   white:    '#FFFFFF',
   grey:     '#888888',
-  greyDark: '#444444',
+  greyDark: '#aaaaaa',
   red:      '#CC3333',
 }
 
@@ -446,6 +446,11 @@ function CourtSlotView({ slot, onClick, onDrop, highlighted, pendingPlayer, acti
       onDrop={() => { setDragOver(false); onDrop() }}
     >
       {isPending && <div className="slot-pending-glow" />}
+      {isPending && (
+        <div className="absolute bottom-1.5 left-0 right-0 text-center" style={{ fontSize: 8, letterSpacing: '0.12em', color: G.gold, textTransform: 'uppercase', zIndex: 2 }}>
+          Tap to lock
+        </div>
+      )}
       {/* Position label + minutes (bench only) */}
       <div className="absolute top-1 left-1.5" style={{ lineHeight: 1 }}>
         <div style={{ ...BEBAS, fontSize: 11, letterSpacing: '0.1em' }}>
@@ -989,6 +994,7 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart }: {
   const previewSlot = (idx: number) => {
     if (slots[idx].player !== null) { setRosterCardPlayer(slots[idx].player); return }
     if (!selectedPlayer) return
+    if (pendingSlotIdx === idx) { confirmPick(); return }
     setPendingSlotIdx(idx)
   }
 
