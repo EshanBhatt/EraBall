@@ -563,7 +563,7 @@ const ERA_DESC: Record<Era, { style: string; note: string }> = {
 // ─── How To Play modal ────────────────────────────────────────────────────────
 const HOW_TO_PLAY_STEPS = [
   {
-    title: 'Pick Your Era',
+    title: 'Pick Your Simulation Era',
     body: 'Choose a decade: 50s through the 2020s. This is the era of basketball your season will be simulated in. Following the Era rules and trends.',
   },
   {
