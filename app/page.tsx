@@ -1026,6 +1026,15 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart }: {
     return () => window.removeEventListener('keydown', handler)
   }, [pendingSlotIdx, selectedPlayer])
 
+  // Prefetch headshots for the first 20 roster players as soon as the pool loads
+  useEffect(() => {
+    if (rosterPool.length === 0) return
+    rosterPool.slice(0, 20).forEach(p => {
+      const img = new Image()
+      img.src = `/api/headshot?id=${p.person_id}`
+    })
+  }, [rosterPool])
+
   const loadDevRoster = () => {
     setDraftedIds(ids => {
       const pool = players.filter(p => {
