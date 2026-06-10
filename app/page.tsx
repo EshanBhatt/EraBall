@@ -665,7 +665,9 @@ function TopBar({ onRestart, right }: { onRestart: () => void; right?: React.Rea
             <button
               onClick={() => setShowHelp(true)}
               className="text-xs uppercase tracking-widest"
-              style={{ background: 'none', border: `1px solid ${G.border}`, color: G.grey, padding: '4px 12px', cursor: 'pointer', letterSpacing: '0.2em' }}
+              style={{ background: 'none', border: `1px solid ${G.border}`, color: G.grey, padding: '4px 12px', cursor: 'pointer', letterSpacing: '0.2em', transition: 'color 0.12s ease, border-color 0.12s ease' }}
+              onMouseEnter={e => { e.currentTarget.style.color = G.gold; e.currentTarget.style.borderColor = G.gold }}
+              onMouseLeave={e => { e.currentTarget.style.color = G.grey; e.currentTarget.style.borderColor = G.border }}
             >
               How to Play
             </button>
@@ -848,7 +850,9 @@ function EraSelection({ onEraSelected, onRestart }: { onEraSelected: (era: Era) 
           <button
             onClick={() => setShowHelp(true)}
             className="text-xs uppercase tracking-widest"
-            style={{ background: 'none', border: 'none', color: G.greyDark, padding: '2px 0', cursor: 'pointer', letterSpacing: '0.2em' }}
+            style={{ background: 'none', border: 'none', color: G.greyDark, padding: '2px 0', cursor: 'pointer', letterSpacing: '0.2em', transition: 'color 0.12s ease' }}
+            onMouseEnter={e => { e.currentTarget.style.color = G.gold }}
+            onMouseLeave={e => { e.currentTarget.style.color = G.greyDark }}
           >
             How to Play
           </button>
