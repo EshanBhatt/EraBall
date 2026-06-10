@@ -214,9 +214,10 @@ const PLAYOFF_MPG: Record<SlotPosition, number> = {
 const STARTER_BASELINE_MPG = 35
 const BENCH_BASELINE_MPG   = 25
 
-// Small-sample overrides: redirect "name:era:team" to use a different era:team stat line.
-// Used when a player's stint with a team is too short to reflect their true level.
-const STAT_REDIRECT: Record<string, string> = {
+// Rating-only overrides: "name:era:team" → era:team key to use for rating calc only.
+// Display stats are unchanged — only the tier/rating uses the redirected stat line.
+// Use when a small sample inflates (or deflates) a player's apparent level.
+const RATING_STAT_OVERRIDE: Record<string, string> = {
   'Nikola Vucevic:20s:ORL': '20s:CHI',
 }
 
@@ -225,15 +226,10 @@ const STAT_REDIRECT: Record<string, string> = {
 // teams in the same era (key format: "era:team"). The player's native .era
 // field is preserved — only counting/shooting stats change.
 export function withEraStats(player: Player, era: Era, team?: string): Player {
-  // Check manual stat redirect (e.g. small-sample overrides)
-  const redirectKey = team ? `${player.full_name}:${era}:${team}` : null
-  const redirectTarget = redirectKey ? STAT_REDIRECT[redirectKey] : null
-
   // Try era:team first (for players with per-team splits), then era alone.
-  const eraData: EraStats | undefined = redirectTarget
-    ? player.stats_by_era?.[redirectTarget]
-    : (team ? player.stats_by_era?.[`${era}:${team}`] : undefined) ??
-      player.stats_by_era?.[era]
+  const eraData: EraStats | undefined =
+    (team ? player.stats_by_era?.[`${era}:${team}`] : undefined) ??
+    player.stats_by_era?.[era]
   if (!eraData) return { ...player, era }
   const { team: eraTeam, GP, ...stats } = eraData
   return { ...player, era, eraTeam, GP, ...stats }
@@ -317,22 +313,29 @@ export function imputeTOV(player: Player): number {
 }
 
 export function playerBaseRating(player: Player, simEra?: Era): number {
-  const ts = calcTS(player)
+  // Check for a rating-only stat override (display stats unchanged)
+  const overrideKey = player.eraTeam ? `${player.full_name}:${player.era}:${player.eraTeam}` : null
+  const overrideTarget = overrideKey ? RATING_STAT_OVERRIDE[overrideKey] : null
+  const ratingPlayer: Player = overrideTarget && player.stats_by_era?.[overrideTarget]
+    ? { ...player, ...(() => { const { team: _t, GP: _g, ...s } = player.stats_by_era![overrideTarget]; return s })() }
+    : player
+
+  const ts = calcTS(ratingPlayer)
   const threePtBonus = (!simEra || PRE_THREE_PT_ERAS.includes(simEra))
     ? 0
-    : (player.FG3M ?? 0) * 1.5
+    : (ratingPlayer.FG3M ?? 0) * 1.5
   const anchorBonus = player.defAnchor ? 12 : player.offAnchor ? 8 : 0
   const top75Bonus = player.greatest_75_flag === 'Y' ? 3 : 0
   return (
-    (player.PTS ?? 0)     * 1.0 +
-    (player.REB ?? 0)     * 0.7 +
-    (player.AST ?? 0)     * 0.7 +
-    ts                    * 25  +
-    threePtBonus               +
-    imputeSTL(player)     * 1.5 +
-    imputeBLK(player)     * 1.5 -
-    imputeTOV(player)     * 1.0 +
-    anchorBonus                +
+    (ratingPlayer.PTS ?? 0)     * 1.0 +
+    (ratingPlayer.REB ?? 0)     * 0.7 +
+    (ratingPlayer.AST ?? 0)     * 0.7 +
+    ts                          * 25  +
+    threePtBonus                      +
+    imputeSTL(ratingPlayer)     * 1.5 +
+    imputeBLK(ratingPlayer)     * 1.5 -
+    imputeTOV(ratingPlayer)     * 1.0 +
+    anchorBonus                       +
     top75Bonus
   )
 }
