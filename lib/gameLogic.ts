@@ -685,12 +685,12 @@ export function simulateSeason(
       STL:     w.STL * v,
       BLK:     w.BLK * v,
       TOV:     w.TOV * v,
-      FG_PCT:  Math.min(0.80, Math.max(0.20, (pr.player.FG_PCT ?? 0.45) + fgCtx + effNoise(0.065))),
+      FG_PCT:  Math.min(0.80, Math.max(0.20, (pr.player.FG_PCT ?? 0.45) + fgCtx + effNoise(0.035))),
       FG3_PCT: PRE_THREE_PT_ERAS.includes(simEra) ? null
         : pr.player.FG3_PCT != null
-          ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + fgCtx + effNoise(0.070)))
+          ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + fgCtx + effNoise(0.040)))
           : null,
-      FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + ftCtx + effNoise(0.055))),
+      FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + ftCtx + effNoise(0.030))),
     }
   })
 
@@ -920,12 +920,12 @@ export function simulatePlayoffs(
       STL:     stlBlkTov[i].STL,
       BLK:     stlBlkTov[i].BLK,
       TOV:     stlBlkTov[i].TOV,
-      FG_PCT:  Math.min(0.80, Math.max(0.20, (pr.player.FG_PCT ?? 0.45) + effBoost + fgCtx + effNoise(0.065))),
+      FG_PCT:  Math.min(0.80, Math.max(0.20, (pr.player.FG_PCT ?? 0.45) + effBoost + fgCtx + effNoise(0.035))),
       FG3_PCT: PRE_THREE_PT_ERAS.includes(simEra) ? null
         : pr.player.FG3_PCT != null
-          ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + effBoost + fgCtx + effNoise(0.070)))
+          ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + effBoost + fgCtx + effNoise(0.040)))
           : null,
-      FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + effBoost + ftCtx + effNoise(0.065))),
+      FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + effBoost + ftCtx + effNoise(0.035))),
     }
   })
 
@@ -947,12 +947,12 @@ export function simulatePlayoffs(
       STL:     stlBlkTov[i].STL,
       BLK:     stlBlkTov[i].BLK,
       TOV:     stlBlkTov[i].TOV,
-      FG_PCT:  Math.min(0.80, Math.max(0.20, (pr.player.FG_PCT ?? 0.45) + effBoost + fgCtx + effNoise(0.065))),
+      FG_PCT:  Math.min(0.80, Math.max(0.20, (pr.player.FG_PCT ?? 0.45) + effBoost + fgCtx + effNoise(0.035))),
       FG3_PCT: PRE_THREE_PT_ERAS.includes(simEra) ? null
         : pr.player.FG3_PCT != null
-          ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + effBoost + fgCtx + effNoise(0.070)))
+          ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + effBoost + fgCtx + effNoise(0.040)))
           : null,
-      FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + effBoost + ftCtx + effNoise(0.065))),
+      FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + effBoost + ftCtx + effNoise(0.035))),
     }
   })
 
