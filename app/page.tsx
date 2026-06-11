@@ -681,7 +681,9 @@ function TopBar({ onRestart, right }: { onRestart: () => void; right?: React.Rea
 function EraSelection({ onEraSelected, onRestart }: { onEraSelected: (era: Era) => void; onRestart: () => void }) {
   const [spinning, setSpinning] = useState(false)
   const [era, setEra] = useState<Era | null>(null)
-  const [showHelp, setShowHelp] = useState(true)
+  const [showHelp, setShowHelp] = useState(() => {
+    try { return !localStorage.getItem('eraball_seen_help') } catch { return true }
+  })
   const [displayEra, setDisplayEra] = useState<Era | null>(null)
   const [spinKey, setSpinKey] = useState(0)
   const [spinPhase, setSpinPhase] = useState<'fast' | 'slow' | 'land'>('fast')
@@ -860,7 +862,10 @@ function EraSelection({ onEraSelected, onRestart }: { onEraSelected: (era: Era) 
       <div className="px-8 pb-8 text-xs uppercase tracking-widest text-center" style={{ color: G.greyDark }}>
         Draft across decades
       </div>
-      {showHelp && <HowToPlayModal onClose={() => setShowHelp(false)} />}
+      {showHelp && <HowToPlayModal onClose={() => {
+        try { localStorage.setItem('eraball_seen_help', '1') } catch {}
+        setShowHelp(false)
+      }} />}
     </div>
   )
 }
