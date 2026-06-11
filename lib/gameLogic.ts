@@ -161,6 +161,7 @@ const PLAYER_ANCHORS: Record<string, AnchorType> = {
   'Bill Russell':    'def',
   'Hakeem Olajuwon': 'def',
   'Kevin Garnett':   'def',
+  'Dwight Howard':   'def',
 }
 
 // Era-specific anchor overrides — "name:era" takes priority over PLAYER_ANCHORS.
