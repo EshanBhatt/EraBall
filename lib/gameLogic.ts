@@ -26,6 +26,7 @@ const FLEX_PLAYERS: Record<string, SlotPosition[]> = {
 const POSITION_LOCK: Record<string, SlotPosition[]> = {
   'Tracy McGrady':  ['SG', 'SF'],
   'Peyton Watson':  ['SF', 'PF'],
+  'Joel Embiid':    ['PF', 'C'],
 }
 
 export function applyFlexTag(player: Player): Player {

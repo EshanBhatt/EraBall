@@ -50,6 +50,15 @@
   animation: spin-pulse 1.4s ease-in-out infinite;
 }
 
+@keyframes begin-draft-pulse {
+  0%, 100% { box-shadow: 0 0 8px 2px rgba(201, 168, 76, 0.25); }
+  50%       { box-shadow: 0 0 22px 6px rgba(201, 168, 76, 0.65); }
+}
+
+.begin-draft-pulse {
+  animation: begin-draft-pulse 2s ease-in-out infinite;
+}
+
 body {
   background-color: #000000;
   color: white;
