@@ -542,6 +542,15 @@ export function calcEraModifier(player: Player, simEra: Era): number {
   const dist = Math.abs(playerIdx - simIdx)
   const table = playerIdx > simIdx ? ERA_MOD_BACKWARD : ERA_MOD_FORWARD
   let mod = table[Math.min(dist, table.length - 1)]
+  // Extra penalty for modern players (10s/20s) in the 50s/60s — style gap is too severe
+  // for the normal backward table to capture (no 3PT, physical defense, different spacing).
+  const modernInOldEra: Partial<Record<string, Partial<Record<string, number>>>> = {
+    '20s': { '50s': 0.12, '60s': 0.09 },
+    '10s': { '50s': 0.11, '60s': 0.08 },
+  }
+  const extraPenalty = modernInOldEra[player.era]?.[simEra] ?? 0
+  mod = Math.max(mod - extraPenalty, 0.50)
+
   // Extra penalty for pre-3pt era players (50s/60s/70s) in eras where 3PT matters.
   // Estimated shooters (high-TS guards who'd adapt) are exempt from this penalty.
   if (PRE_THREE_PT_ERAS.includes(player.era) && !isEstimatedShooter(player, simEra)) {
