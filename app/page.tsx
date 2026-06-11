@@ -611,6 +611,7 @@ function HowToPlayModal({ onClose }: { onClose: () => void }) {
       onClick={onClose}
     >
       <div
+        className="roster-scroll"
         style={{ background: G.surface, border: `1px solid ${G.border}`, maxWidth: 560, width: '100%', maxHeight: '85vh', overflowY: 'auto' }}
         onClick={e => e.stopPropagation()}
       >
@@ -1337,7 +1338,7 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
                       style={{ width: '100%', background: G.surface2, border: `1px solid ${G.border}`, color: G.white, padding: '8px 12px', fontSize: 13, outline: 'none' }}
                     />
                     {devPlayerSearch.length > 1 && (
-                      <div style={{ background: G.surface2, border: `1px solid ${G.border}`, borderTop: 'none', maxHeight: 200, overflowY: 'auto' }}>
+                      <div className="roster-scroll" style={{ background: G.surface2, border: `1px solid ${G.border}`, borderTop: 'none', maxHeight: 200, overflowY: 'auto' }}>
                         {players
                           .filter(p => p.full_name.toLowerCase().includes(devPlayerSearch.toLowerCase()))
                           .slice(0, 10)
@@ -1758,7 +1759,7 @@ function CoachDraftScreen({ coaches, onCoachSelected, onRestart, sandboxMode }: 
               style={{ width: '100%', background: G.surface, border: `1px solid ${G.border}`, color: G.white, padding: '8px 12px', fontSize: 13, outline: 'none' }}
             />
             {sandboxSearch.length > 1 && (
-              <div style={{ background: G.surface, border: `1px solid ${G.border}`, borderTop: 'none', maxHeight: 220, overflowY: 'auto' }}>
+              <div className="roster-scroll" style={{ background: G.surface, border: `1px solid ${G.border}`, borderTop: 'none', maxHeight: 220, overflowY: 'auto' }}>
                 {coaches.filter(c => c.name.toLowerCase().includes(sandboxSearch.toLowerCase())).slice(0, 12).map(c => (
                   <div
                     key={`${c.name}-${c.from}`}
@@ -1910,7 +1911,7 @@ function CoachDraftScreen({ coaches, onCoachSelected, onRestart, sandboxMode }: 
                 style={{ width: '100%', background: G.surface, border: `1px solid ${G.border}`, color: G.white, padding: '8px 12px', fontSize: 13, outline: 'none' }}
               />
               {devSearch.length > 1 && (
-                <div style={{ background: G.surface, border: `1px solid ${G.border}`, borderTop: 'none', maxHeight: 200, overflowY: 'auto' }}>
+                <div className="roster-scroll" style={{ background: G.surface, border: `1px solid ${G.border}`, borderTop: 'none', maxHeight: 200, overflowY: 'auto' }}>
                   {coaches.filter(c => c.name.toLowerCase().includes(devSearch.toLowerCase())).slice(0, 10).map(c => (
                     <div
                       key={`${c.name}-${c.from}`}
@@ -1959,6 +1960,7 @@ function StatsTable({ stats, simEra, title, subtitle, teamActualPPG, teamActualO
           zIndex: 1000, display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
           padding: '48px 24px 24px', overflowY: 'auto',
         }}
+        className="roster-scroll"
         onClick={e => { if (e.target === e.currentTarget) setCardPlayer(null) }}
       >
         <div style={{ width: '100%', maxWidth: 360, position: 'relative' }}>
