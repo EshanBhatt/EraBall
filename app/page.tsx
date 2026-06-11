@@ -2199,14 +2199,21 @@ function computeSeasonAwards(
   // ── DPOY ──
   const dpoy = rated
     .filter(({ s, base }) =>
-      base > t.dpoyBase && ((s.STL > t.dpoySTL && s.BLK > t.dpoyBLK) || s.STL > 2.2 || s.BLK > 2.8)
+      base > t.dpoyBase && (
+        (s.STL > t.dpoySTL && s.BLK > t.dpoyBLK) ||
+        s.STL > 2.2 || s.BLK > 2.8 ||
+        (s.BLK >= 2.5 && s.REB >= 12)
+      )
     )
-    .sort((a, b) => (b.s.STL + b.s.BLK) - (a.s.STL + a.s.BLK))[0]
+    .sort((a, b) => (b.s.STL + b.s.BLK + b.s.REB * 0.15) - (a.s.STL + a.s.BLK + a.s.REB * 0.15))[0]
   if (dpoy) {
+    const isBigManPath = dpoy.s.BLK >= 2.5 && dpoy.s.REB >= 12
     awards.push({
       award: 'Defensive POY',
       player: dpoy.s,
-      justification: `${dpoy.s.STL.toFixed(1)} STL · ${dpoy.s.BLK.toFixed(1)} BLK`,
+      justification: isBigManPath
+        ? `${dpoy.s.BLK.toFixed(1)} BLK · ${dpoy.s.REB.toFixed(1)} REB · ${dpoy.s.STL.toFixed(1)} STL`
+        : `${dpoy.s.STL.toFixed(1)} STL · ${dpoy.s.BLK.toFixed(1)} BLK`,
       gold: false,
     })
   }
