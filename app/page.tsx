@@ -851,17 +851,9 @@ function EraSelection({ onEraSelected, onSandboxSelected, onRestart }: { onEraSe
 
         {/* Actions */}
         <div className="flex flex-col items-center gap-3">
-          {era && !spinning && (
-            <Btn onClick={() => onEraSelected(era)} variant="gold" className="w-48 py-4 text-base" style={{ animation: 'begin-draft-pulse 2s ease-in-out infinite' }}>
-              Begin Draft
-            </Btn>
-          )}
           <Btn onClick={spinRandom} disabled={spinning} variant="ghost" className="w-48 py-3">
             {spinning ? 'Spinning...' : 'Random'}
           </Btn>
-          <div className="text-xs uppercase tracking-widest text-center" style={{ color: G.greyDark }}>
-            Draft across decades
-          </div>
           <button
             onClick={() => setShowHelp(true)}
             className="text-xs uppercase tracking-widest"
@@ -872,6 +864,11 @@ function EraSelection({ onEraSelected, onSandboxSelected, onRestart }: { onEraSe
             How to Play
           </button>
           {era && !spinning && (
+            <Btn onClick={() => onEraSelected(era)} variant="gold" className="w-48 py-4 text-base" style={{ animation: 'begin-draft-pulse 2s ease-in-out infinite' }}>
+              Begin Draft
+            </Btn>
+          )}
+          {era && !spinning && (
             <>
               <span className="text-xs uppercase tracking-widest" style={{ color: G.greyDark }}>or play</span>
               <Btn onClick={() => onSandboxSelected(era)} variant="ghost" className="w-48 py-3 text-sm">
@@ -880,6 +877,10 @@ function EraSelection({ onEraSelected, onSandboxSelected, onRestart }: { onEraSe
             </>
           )}
         </div>
+      </div>
+
+      <div className="px-8 pb-8 text-xs uppercase tracking-widest text-center" style={{ color: G.greyDark }}>
+        Draft across decades
       </div>
       {showHelp && <HowToPlayModal onClose={() => {
         try { localStorage.setItem('eraball_seen_help', '1') } catch {}
