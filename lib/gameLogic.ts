@@ -193,6 +193,29 @@ function playoffRingBoost(rings: number): number {
 const THREE_PT_ERAS: Era[] = ['10s', '20s']
 const PRE_THREE_PT_ERAS: Era[] = ['50s', '60s', '70s']
 
+// League-average 3PT% by era — used to estimate pre-3PT guards in modern eras
+const ERA_LEAGUE_AVG_3PT: Partial<Record<Era, number>> = {
+  '80s': 0.278, '90s': 0.340, '00s': 0.350, '10s': 0.362, '20s': 0.362,
+}
+
+// Pre-3PT era guard with TS ≥ 52% and no 3PT data — would adapt and shoot some 3s in modern eras
+function isEstimatedShooter(player: Player, simEra: Era): boolean {
+  if (player.FG3_PCT != null) return false
+  if (!PRE_THREE_PT_ERAS.includes(player.era)) return false
+  if (PRE_THREE_PT_ERAS.includes(simEra)) return false
+  const pos = (player.position ?? '').toUpperCase()
+  const isGuard = pos.includes('GUARD') || pos.includes('PG') || pos.includes('SG') || pos === 'G'
+  if (!isGuard) return false
+  return calcTS(player) >= 0.52
+}
+
+// Returns the base estimated FG3_PCT before sim noise — 85% of era league average (capable but not natural)
+function getEstimatedFG3PCT(player: Player, simEra: Era): number | null {
+  if (!isEstimatedShooter(player, simEra)) return null
+  const leagueAvg = ERA_LEAGUE_AVG_3PT[simEra]
+  return leagueAvg != null ? leagueAvg * 0.85 : null
+}
+
 // Era-appropriate opponent scoring baseline (no 3s = lower opp scores in early eras)
 const ERA_OPP_BASELINE: Record<Era, number> = {
   '50s': 88, '60s': 105, '70s': 100,
@@ -455,8 +478,9 @@ export function calcEraModifier(player: Player, simEra: Era): number {
   const dist = Math.abs(playerIdx - simIdx)
   const table = playerIdx > simIdx ? ERA_MOD_BACKWARD : ERA_MOD_FORWARD
   let mod = table[Math.min(dist, table.length - 1)]
-  // Extra penalty for pre-3pt era players (50s/60s/70s) in eras where 3PT matters
-  if (PRE_THREE_PT_ERAS.includes(player.era)) {
+  // Extra penalty for pre-3pt era players (50s/60s/70s) in eras where 3PT matters.
+  // Estimated shooters (high-TS guards who'd adapt) are exempt from this penalty.
+  if (PRE_THREE_PT_ERAS.includes(player.era) && !isEstimatedShooter(player, simEra)) {
     const fg3 = player.FG3_PCT ?? 0
     if (fg3 < 0.2) {
       if (THREE_PT_ERAS.includes(simEra) || simEra === '00s') mod -= 0.10
@@ -794,7 +818,7 @@ export function simulateSeason(
       FG3_PCT: PRE_THREE_PT_ERAS.includes(simEra) ? null
         : pr.player.FG3_PCT != null
           ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + fgCtx + preEff[i].fg3))
-          : null,
+          : (() => { const b = getEstimatedFG3PCT(pr.player, simEra); return b != null ? Math.min(0.55, Math.max(0.15, b + fgCtx + preEff[i].fg3)) : null })(),
       FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + ftCtx)),
     }
   })
@@ -1039,7 +1063,7 @@ export function simulatePlayoffs(
       FG3_PCT: PRE_THREE_PT_ERAS.includes(simEra) ? null
         : pr.player.FG3_PCT != null
           ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + effBoost + fgCtx + effNoise(0.040)))
-          : null,
+          : (() => { const b = getEstimatedFG3PCT(pr.player, simEra); return b != null ? Math.min(0.55, Math.max(0.15, b + effBoost + fgCtx + effNoise(0.040))) : null })(),
       FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + effBoost + ftCtx + effNoise(0.035))),
     }
   })
@@ -1066,7 +1090,7 @@ export function simulatePlayoffs(
       FG3_PCT: PRE_THREE_PT_ERAS.includes(simEra) ? null
         : pr.player.FG3_PCT != null
           ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + effBoost + fgCtx + effNoise(0.040)))
-          : null,
+          : (() => { const b = getEstimatedFG3PCT(pr.player, simEra); return b != null ? Math.min(0.55, Math.max(0.15, b + effBoost + fgCtx + effNoise(0.040))) : null })(),
       FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + effBoost + ftCtx + effNoise(0.035))),
     }
   })

@@ -2179,6 +2179,23 @@ function computeSeasonAwards(
     }
   }
 
+  // ── 67-win All-Star guarantee ──
+  if (wins >= 67) {
+    for (const { s } of rated) {
+      const alreadyAllStar = awards.some(a => a.award === 'All-Star' && a.player.player.person_id === s.player.person_id)
+      if (alreadyAllStar) continue
+      const qualifies =
+        (s.PTS >= 19 && (s.AST >= 5 || s.STL >= 5 || s.BLK >= 5)) ||
+        (s.PTS >= 18 && s.REB >= 10)
+      if (qualifies) {
+        const just = s.REB >= 10 && s.PTS >= 18
+          ? `${s.PTS.toFixed(1)} PPG · ${s.REB.toFixed(1)} REB on ${wins}-win team`
+          : `${s.PTS.toFixed(1)} PPG · ${s.AST >= 5 ? s.AST.toFixed(1) + ' AST' : s.STL >= 5 ? s.STL.toFixed(1) + ' STL' : s.BLK.toFixed(1) + ' BLK'} on ${wins}-win team`
+        awards.push({ award: 'All-Star', player: s, justification: just, gold: false })
+      }
+    }
+  }
+
   // ── DPOY ──
   const dpoy = rated
     .filter(({ s, base }) =>
