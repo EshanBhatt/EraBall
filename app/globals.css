@@ -59,6 +59,13 @@
   animation: begin-draft-pulse 2s ease-in-out infinite;
 }
 
+/* ── Global scrollbar theme ──────────────────────────────────────────────── */
+*::-webkit-scrollbar        { width: 4px; height: 4px; }
+*::-webkit-scrollbar-track  { background: #111111; }
+*::-webkit-scrollbar-thumb  { background: rgba(201, 168, 76, 0.45); border-radius: 2px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(201, 168, 76, 0.80); }
+* { scrollbar-width: thin; scrollbar-color: rgba(201, 168, 76, 0.45) #111111; }
+
 body {
   background-color: #000000;
   color: white;
