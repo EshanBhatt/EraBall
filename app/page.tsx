@@ -922,6 +922,7 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
   const [sandboxTeam, setSandboxTeam] = useState(NBA_TEAMS[0])
   const [sandboxEra, setSandboxEra] = useState<Era>(ALL_ERAS[6])
   const [sandboxTeamSearch, setSandboxTeamSearch] = useState('')
+  const [sandboxTeamOpen, setSandboxTeamOpen] = useState(false)
 
   const filledCount = slots.filter(s => s.player !== null).length
   const visiblePoolRef = useRef<Player[]>([])
@@ -1231,37 +1232,49 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
                   <span className="text-xs" style={{ color: G.greyDark }}>— pick any team / era</span>
                 </div>
                 <div className="p-3 space-y-3">
-                  <div>
+                  <div className="relative">
                     <div className="text-xs uppercase tracking-widest mb-1" style={{ color: G.grey }}>Team</div>
-                    <select
-                      value={sandboxTeam}
-                      onChange={e => {
-                        const team = e.target.value
-                        setSandboxTeam(team)
-                        const validEras = new Set(validCombos.filter(c => c.team === team).map(c => c.era))
-                        if (!validEras.has(sandboxEra)) {
-                          const first = ALL_ERAS.find(era => validEras.has(era))
-                          if (first) setSandboxEra(first)
-                        }
-                      }}
-                      className="w-full px-3 py-2 text-sm font-semibold"
-                      style={{ background: G.surface2, border: `1px solid ${G.border}`, color: G.white, outline: 'none' }}
-                    >
-                      {allTeams.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
                     <input
                       type="text"
-                      value={sandboxTeamSearch}
+                      value={sandboxTeamSearch || (sandboxTeamOpen ? '' : sandboxTeam)}
+                      onFocus={() => { setSandboxTeamOpen(true); setSandboxTeamSearch('') }}
+                      onBlur={() => setTimeout(() => { setSandboxTeamOpen(false); setSandboxTeamSearch('') }, 150)}
                       onChange={e => {
                         const val = e.target.value.toUpperCase()
                         setSandboxTeamSearch(val)
-                        const match = allTeams.find(t => t.startsWith(val))
-                        if (match) setSandboxTeam(match)
+                        setSandboxTeamOpen(true)
                       }}
-                      placeholder="Type to jump to team..."
-                      className="w-full px-3 py-2 text-sm mt-1"
+                      placeholder="Search team..."
+                      className="w-full px-3 py-2 text-sm font-semibold"
                       style={{ background: G.surface2, border: `1px solid ${G.border}`, color: G.white, outline: 'none' }}
                     />
+                    {sandboxTeamOpen && (
+                      <div className="roster-scroll" style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: G.surface2, border: `1px solid ${G.border}`, borderTop: 'none', maxHeight: 200, overflowY: 'auto', zIndex: 50 }}>
+                        {allTeams.filter(t => !sandboxTeamSearch || t.startsWith(sandboxTeamSearch)).map(t => (
+                          <div
+                            key={t}
+                            onMouseDown={() => {
+                              setSandboxTeam(t)
+                              setSandboxTeamSearch('')
+                              setSandboxTeamOpen(false)
+                              const validEras = new Set(validCombos.filter(c => c.team === t).map(c => c.era))
+                              if (!validEras.has(sandboxEra)) {
+                                const first = ALL_ERAS.find(era => validEras.has(era))
+                                if (first) setSandboxEra(first)
+                              }
+                            }}
+                            style={{
+                              padding: '7px 12px', cursor: 'pointer', fontSize: 13,
+                              color: t === sandboxTeam ? G.gold : G.white,
+                              background: t === sandboxTeam ? `${G.gold}18` : 'transparent',
+                              borderBottom: `1px solid ${G.border}`,
+                            }}
+                            onMouseEnter={e => (e.currentTarget.style.background = `${G.gold}22`)}
+                            onMouseLeave={e => (e.currentTarget.style.background = t === sandboxTeam ? `${G.gold}18` : 'transparent')}
+                          >{t}</div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <div className="text-xs uppercase tracking-widest mb-1" style={{ color: G.grey }}>Era</div>
