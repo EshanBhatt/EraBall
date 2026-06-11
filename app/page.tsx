@@ -396,9 +396,10 @@ function PlayerCard({ player, onDragStart, displayEra, activeEra }: { player: Pl
 }
 
 // ─── Court slot ───────────────────────────────────────────────────────────────
-function CourtSlotView({ slot, onClick, onDrop, highlighted, pendingPlayer, activePlayer, simEra }: {
+function CourtSlotView({ slot, onClick, onDrop, highlighted, pendingPlayer, activePlayer, simEra, sandboxMode, onRemove }: {
   slot: CourtSlot; onClick: () => void; onDrop: () => void; highlighted: boolean
   pendingPlayer?: Player | null; activePlayer?: Player | null; simEra?: Era
+  sandboxMode?: boolean; onRemove?: () => void
 }) {
   const [dragOver, setDragOver] = useState(false)
   const confirmed = slot.player
@@ -453,6 +454,16 @@ function CourtSlotView({ slot, onClick, onDrop, highlighted, pendingPlayer, acti
           <span style={{ color: G.goldDim }}>{slot.position}</span>
         </div>
       </div>
+
+      {/* Sandbox remove button on filled slots */}
+      {sandboxMode && confirmed && onRemove && (
+        <button
+          className="absolute top-1 right-1.5 z-10"
+          style={{ lineHeight: 1, color: G.greyDark, fontSize: 13, fontWeight: 700, padding: '0 2px' }}
+          onClick={e => { e.stopPropagation(); onRemove() }}
+          aria-label="Remove player"
+        >×</button>
+      )}
 
       {/* Fit indicator badge on empty slots when player is selected */}
       {activeFit && !isPending && (
@@ -1006,6 +1017,14 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
     setTimeout(doTick, schedule[ticks++])
   }, [players, allTeams, validCombos, rosterPool, respinUsed])
 
+  const removeSlotPlayer = (idx: number) => {
+    const p = slots[idx].player
+    if (!p) return
+    setSlots(prev => prev.map((s, i) => i === idx ? { ...s, player: null, fitPenalty: 0, fitLabel: null } : s))
+    setDraftedIds(prev => { const next = new Set(prev); next.delete(p.person_id); return next })
+    setSelectedPlayer(null); setPendingSlotIdx(null)
+  }
+
   const previewSlot = (idx: number) => {
     if (slots[idx].player !== null) { setRosterCardPlayer(slots[idx].player); return }
     if (!selectedPlayer) return
@@ -1525,7 +1544,7 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
 
             {rosterPool.length === 0 && !spinning && !awaitingSpin && filledCount === 0 && (
               <div className="text-center py-10 text-xs uppercase tracking-widest" style={{ color: G.greyDark }}>
-                Hit Spin to see a roster
+                {sandboxMode ? 'Sandbox mode — pick a team and era, then load roster.' : 'Hit Spin to see a roster'}
               </div>
             )}
           </div>
@@ -1565,6 +1584,8 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
                     highlighted={!!selectedPlayer && !slot.player}
                     pendingPlayer={pendingSlotIdx === i ? selectedPlayer : null}
                     activePlayer={selectedPlayer} simEra={simEra}
+                    sandboxMode={sandboxMode}
+                    onRemove={slot.player ? () => removeSlotPlayer(i) : undefined}
                     onClick={() => previewSlot(i)} onDrop={() => previewSlot(i)} />
                 ))}
               </div>
@@ -1574,6 +1595,8 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
                     highlighted={!!selectedPlayer && !slot.player}
                     pendingPlayer={pendingSlotIdx === i + 3 ? selectedPlayer : null}
                     activePlayer={selectedPlayer} simEra={simEra}
+                    sandboxMode={sandboxMode}
+                    onRemove={slot.player ? () => removeSlotPlayer(i + 3) : undefined}
                     onClick={() => previewSlot(i + 3)} onDrop={() => previewSlot(i + 3)} />
                 ))}
               </div>
@@ -1596,6 +1619,8 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
                 <CourtSlotView key={slot.position} slot={slot}
                   highlighted={!!selectedPlayer && !slot.player}
                   pendingPlayer={pendingSlotIdx === i + 5 ? selectedPlayer : null} simEra={simEra}
+                  sandboxMode={sandboxMode}
+                  onRemove={slot.player ? () => removeSlotPlayer(i + 5) : undefined}
                   onClick={() => previewSlot(i + 5)} onDrop={() => previewSlot(i + 5)} />
               ))}
             </div>
