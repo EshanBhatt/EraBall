@@ -280,7 +280,7 @@ function PlayerCard({ player, onDragStart, displayEra, activeEra }: { player: Pl
     <div
       draggable={!!onDragStart}
       onDragStart={onDragStart}
-      className="select-none cursor-grab active:cursor-grabbing transition-all"
+      className={`select-none transition-all ${onDragStart ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
       style={{ position: 'relative', overflow: 'hidden', background: tierBg(player), border: `1px solid ${G.border}`, padding: '16px' }}
     >
       <div className="flex items-start gap-3 mb-3">
