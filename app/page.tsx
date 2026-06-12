@@ -1679,6 +1679,12 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
                   <span className="text-xs leading-tight" style={{ color: G.greyDark }}>Fits multiple positions without penalty.</span>
                 </div>
               </div>
+              <div className="flex justify-center mt-1">
+                <div className="flex items-start gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wide shrink-0" style={{ color: '#C084FC' }}>Timeless</span>
+                  <span className="text-xs leading-tight" style={{ color: G.greyDark }}>Minimal era penalties across all decades. 5% penalty only if 6+ eras from home era.</span>
+                </div>
+              </div>
               <div className="text-xs mt-1 text-center" style={{ color: G.greyDark, opacity: 0.6, letterSpacing: '0.02em' }}>
                 Scoring isn't everything. Defense, playmaking, and rebounding all shape your season.
               </div>
