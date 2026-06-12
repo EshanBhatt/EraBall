@@ -1673,7 +1673,7 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
 
             {rosterPool.length === 0 && !spinning && !awaitingSpin && filledCount === 0 && (
               <div className="text-center py-10 text-xs uppercase tracking-widest" style={{ color: G.greyDark }}>
-                {sandboxMode ? 'Sandbox mode — pick a team and era, then load roster.' : 'Hit Spin to see a roster'}
+                {sandboxMode ? 'Sandbox mode — pick a team and era, then load roster. Or search for a player and load all of that player\'s cards.' : 'Hit Spin to see a roster'}
               </div>
             )}
           </div>
