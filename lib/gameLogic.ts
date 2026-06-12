@@ -167,6 +167,7 @@ const PLAYER_ANCHORS: Record<string, AnchorType> = {
   'Joakim Noah':             'def',
   'Walt Frazier':            'def',
   // Offensive Anchors — T1
+  'Michael Jordan':          'off',
   'Nikola Jokic':            'off',
   'LeBron James':            'off',
   'Stephen Curry':           'off',
