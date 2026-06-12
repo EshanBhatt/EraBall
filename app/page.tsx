@@ -1495,7 +1495,7 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
                 )}
                 {awaitingSpin && !spinning && (
                   <div className="text-center text-xs uppercase tracking-[0.2em]" style={{ color: G.goldDim }}>
-                    Spin for your next pick
+                    {filledCount === 9 ? 'Draft your coach' : 'Spin for your next pick'}
                   </div>
                 )}
                 {!awaitingSpin && !spinning && !respinUsed && rosterPool.length > 0 && (
