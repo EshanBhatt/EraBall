@@ -852,14 +852,14 @@ function EraSelection({ onEraSelected, onSandboxSelected, onRestart }: { onEraSe
 
         {/* Actions */}
         <div className="flex flex-col items-center gap-3">
+          <Btn onClick={spinRandom} disabled={spinning} variant="ghost" className="w-48 py-3">
+            {spinning ? 'Spinning...' : 'Random'}
+          </Btn>
           {era && !spinning && (
             <Btn onClick={() => onEraSelected(era)} variant="gold" className="w-48 py-4 text-base" style={{ animation: 'begin-draft-pulse 2s ease-in-out infinite' }}>
               Begin Draft
             </Btn>
           )}
-          <Btn onClick={spinRandom} disabled={spinning} variant="ghost" className="w-48 py-3">
-            {spinning ? 'Spinning...' : 'Random'}
-          </Btn>
           <span className="text-xs uppercase tracking-widest" style={{ color: G.greyDark }}>Draft across decades</span>
           <button
             onClick={() => setShowHelp(true)}
