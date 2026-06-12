@@ -3503,7 +3503,7 @@ export default function Home() {
       </div>
 
       {/* Mobile: inline at page bottom, doesn't float over content */}
-      <div className="suggestions-btn-mobile" style={{ textAlign: 'center', padding: '16px 0 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+      <div className="suggestions-btn-mobile" style={{ textAlign: 'center', padding: '16px 0 32px', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
         <a
           href="https://eshanbhattdesign.com"
           target="_blank"
@@ -3540,7 +3540,8 @@ export default function Home() {
       </div>
 
       <style>{`
-        @media (min-width: 641px) { .suggestions-btn-mobile { display: none; } }
+        .suggestions-btn-mobile { display: flex; }
+        @media (min-width: 641px) { .suggestions-btn-mobile { display: none !important; } }
         @media (max-width: 640px)  { .suggestions-btn-desktop { display: none !important; } }
       `}</style>
     </div>
