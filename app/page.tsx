@@ -897,7 +897,8 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
   const [slots, setSlots] = useState<CourtSlot[]>(emptySlots())
   const [spinning, setSpinning] = useState(false)
   const [rosterPool, setRosterPool] = useState<Player[]>([])
-  const [sortBy, setSortBy] = useState<'SPECIAL' | 'PTS' | 'REB' | 'AST' | 'TS' | 'STL' | 'BLK' | 'POS'>('PTS')
+  const [sortBy, setSortBy] = useState<'SPECIAL' | 'PTS' | 'REB' | 'AST' | 'TS' | 'STL' | 'BLK'>('PTS')
+  const [posFilter, setPosFilter] = useState<'G' | 'F' | 'C' | null>(null)
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
   const [rosterCardPlayer, setRosterCardPlayer] = useState<Player | null>(null)
   const [pendingSlotIdx, setPendingSlotIdx] = useState<number | null>(null)
@@ -1514,22 +1515,46 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <GoldLabel>{lockedTeam} - {lockedEra ? eraLabel(lockedEra) : ''}</GoldLabel>
-                  <GoldLabel>{rosterPool.length} available</GoldLabel>
+                  <div className="flex items-center gap-2">
+                    <div className="flex" style={{ border: `1px solid ${G.border}`, borderRadius: 2 }}>
+                      {(['G', 'F', 'C'] as const).map(pos => (
+                        <button key={pos} onClick={() => setPosFilter(f => f === pos ? null : pos)}
+                          className="text-xs uppercase tracking-widest"
+                          style={{
+                            padding: '3px 8px', border: 'none', cursor: 'pointer',
+                            background: posFilter === pos ? `${G.gold}22` : 'transparent',
+                            color: posFilter === pos ? G.gold : G.greyDark,
+                            borderRight: pos !== 'C' ? `1px solid ${G.border}` : 'none',
+                            transition: 'color 0.1s, background 0.1s',
+                          }}
+                        >{pos}</button>
+                      ))}
+                    </div>
+                    <GoldLabel>{rosterPool.length}</GoldLabel>
+                  </div>
                 </div>
                 <div className="roster-scroll" style={{ border: `1px solid ${G.border}`, maxHeight: 220, overflowY: 'auto', overflowX: 'hidden' }}>
                   {(() => {
                     const isSpecial = (p: Player) =>
                       p.greatest_75_flag === 'Y' || (p.rings ?? 0) > 0 || p.defAnchor || p.offAnchor || !!p.flexPositions || !!p.timeless
-                    const POS_ORDER: Record<string, number> = { PG: 0, SG: 1, SF: 2, PF: 3, C: 4 }
-                    const posRank = (p: Player) => POS_ORDER[p.position?.split('-')[0] ?? ''] ?? 5
+                    const posMatch = (p: Player) => {
+                      const pos = p.position?.toLowerCase() ?? ''
+                      if (posFilter === 'G') return pos.includes('guard')
+                      if (posFilter === 'F') return pos.includes('forward')
+                      if (posFilter === 'C') return pos.includes('center')
+                      return false
+                    }
                     const sorted = [...rosterPool].sort((a, b) => {
+                      if (posFilter) {
+                        const aM = posMatch(a) ? 0 : 1; const bM = posMatch(b) ? 0 : 1
+                        if (aM !== bM) return aM - bM
+                      }
                       if (sortBy === 'SPECIAL') {
                         const aS = isSpecial(a) ? 1 : 0; const bS = isSpecial(b) ? 1 : 0
                         if (bS !== aS) return bS - aS
                         return playerBaseRating(b, b.era as Era) - playerBaseRating(a, a.era as Era)
                       }
                       if (sortBy === 'TS') return calcTS(b) - calcTS(a)
-                      if (sortBy === 'POS') return posRank(a) - posRank(b)
                       return (b[sortBy] ?? 0) - (a[sortBy] ?? 0)
                     }).filter(p => sortBy !== 'SPECIAL' || isSpecial(p))
                     visiblePoolRef.current = sorted
@@ -1583,7 +1608,7 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
                 <div className="flex items-center mt-2" style={{ borderTop: `1px solid ${G.border}`, overflow: 'hidden' }}>
                   <span className="text-xs uppercase tracking-widest shrink-0 px-2" style={{ color: G.greyDark, borderRight: `1px solid ${G.border}`, paddingTop: 6, paddingBottom: 6 }}>Sort</span>
                   <div className="flex overflow-x-auto" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
-                    {(['SPECIAL', 'PTS', 'REB', 'AST', 'TS', 'STL', 'BLK', 'POS'] as const).map(s => (
+                    {(['SPECIAL', 'PTS', 'REB', 'AST', 'TS', 'STL', 'BLK'] as const).map(s => (
                       <button
                         key={s}
                         onClick={() => setSortBy(s)}
@@ -1599,7 +1624,7 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
                           transition: 'color 0.1s, background 0.1s',
                         }}
                       >
-                        {s === 'TS' ? 'TS%' : s === 'SPECIAL' ? '★' : s === 'POS' ? 'Pos' : s}
+                        {s === 'TS' ? 'TS%' : s === 'SPECIAL' ? '★' : s}
                       </button>
                     ))}
                   </div>
