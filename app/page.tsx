@@ -2891,7 +2891,7 @@ function SimulationScreen({ slots, coach, simEra, onRestart, greyscaleBtn, sandb
               {done ? (
                 <>
                   {sandboxMode && (
-                    <div className="text-xs uppercase tracking-[0.25em] mb-3 py-1.5 mx-8" style={{ color: '#000', background: G.gold, letterSpacing: '0.25em', fontWeight: 700 }}>
+                    <div className="text-xs uppercase tracking-[0.25em] mb-3 py-1.5 mx-8" style={{ color: G.gold, background: `${G.gold}18`, border: `1px solid ${G.gold}66`, letterSpacing: '0.25em', fontWeight: 700 }}>
                       Sandbox Mode
                     </div>
                   )}
