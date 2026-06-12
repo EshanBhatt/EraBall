@@ -1535,7 +1535,8 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
             {/* Hint: roster visible but no player selected yet */}
             {rosterPool.length > 0 && !selectedPlayer && !awaitingSpin && (
               <div className="text-center text-xs" style={{ color: G.greyDark, letterSpacing: '0.04em' }}>
-                Select a player · then tap a slot to place
+                <span className="md:hidden">Select a player · then tap a slot to place</span>
+                <span className="hidden md:inline">Select a player · then click a slot to place</span>
               </div>
             )}
 
