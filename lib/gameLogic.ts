@@ -878,7 +878,7 @@ export function simulateSeason(
     ? (isPreThreePt ? 0.035 : simEra === '20s' || simEra === '10s' ? 0.050 : simEra === '00s' ? 0.050 : simEra === '90s' ? 0.025 : 0.015)
     : (simEra === '20s' || simEra === '10s' ? 0.015 : simEra === '00s' ? 0.010 : 0.006)
   const spacingCapNeg     = isPreThreePt ? 0.15 : simEra === '20s' ? 0.25 : simEra === '10s' ? 0.20 : simEra === '00s' ? 0.14 : simEra === '90s' ? 0.10 : 0.06
-  const spacingCapPos     = simEra === '20s' || simEra === '10s' ? 0.08 : simEra === '00s' ? 0.05 : 0.03
+  const spacingCapPos     = simEra === '20s' ? 0.15 : simEra === '10s' ? 0.12 : simEra === '00s' ? 0.09 : simEra === '90s' ? 0.06 : 0.05
   const spacingWinFactor  = Math.max(1 - spacingCapNeg, Math.min(1 + spacingCapPos, 1.0 + spacingDev * spacingPerShooter))
 
   // Scoring win factor: ties win probability to offensive output vs era baseline.
@@ -1043,7 +1043,7 @@ export function simulatePlayoffs(
     ? (isPreThreePtPO ? 0.035 : simEra === '20s' || simEra === '10s' ? 0.050 : simEra === '00s' ? 0.050 : simEra === '90s' ? 0.025 : 0.015)
     : (simEra === '20s' || simEra === '10s' ? 0.015 : simEra === '00s' ? 0.010 : 0.006)
   const spacingCapNegPO     = isPreThreePtPO ? 0.15 : simEra === '20s' ? 0.25 : simEra === '10s' ? 0.20 : simEra === '00s' ? 0.14 : simEra === '90s' ? 0.10 : 0.06
-  const spacingCapPosPO     = simEra === '20s' || simEra === '10s' ? 0.08 : simEra === '00s' ? 0.05 : 0.03
+  const spacingCapPosPO     = simEra === '20s' ? 0.15 : simEra === '10s' ? 0.12 : simEra === '00s' ? 0.09 : simEra === '90s' ? 0.06 : 0.05
   const spacingWinFactor    = Math.max(1 - spacingCapNegPO, Math.min(1 + spacingCapPosPO, 1.0 + spacingDevPO * spacingPerShooterPO))
 
   // Ring-boosted effective team rating for playoff win determination
