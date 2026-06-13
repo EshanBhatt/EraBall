@@ -832,9 +832,9 @@ export function simulateSeason(
   let totalTeamScore = 0
   let totalOppScore = 0
 
-  const OPP_BASELINE = 44
+  const OPP_BASELINE = 42
   const OPP_SPREAD   = 6
-  const GAME_NOISE   = 6
+  const GAME_NOISE   = 10
 
   // Per-player entries with minutes info (no stat accumulation needed)
   const entries = playerRatings.map(pr => {
