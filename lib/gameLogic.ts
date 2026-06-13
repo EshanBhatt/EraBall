@@ -931,20 +931,19 @@ export function simulateSeason(
   const totalVarPTS = varPTSWeights.reduce((a, b) => a + b, 0)
 
   // ── Team context efficiency modifiers ──────────────────────────────────
-  // spacingMod reuses shooterCount computed above for the win condition
-  const spacingMod    = spacingDev * spacingPerShooter
+  const spacingMod    = spacingDev * spacingPerShooter  // used for win factor only — excluded from displayed FG% (spacing already penalizes PPG via generateGameScore)
   // Playmaking: top AST on team lifts shot quality for everyone
   const topAST        = Math.max(...entries.map(e => e.pr.player.AST ?? 0))
   const playmakingMod = Math.min(0.018, Math.max(-0.012, (topAST - 5) * 0.003))
-  // Team quality: stronger teams create better shots
-  const teamQualityMod = (rawRating - 70) * 0.0008
+  // Team quality: stronger teams create slightly better shots (neutral at rawRating ~40)
+  const teamQualityMod = (rawRating - 40) * 0.0008
 
   const seasonStats: PlayerSeasonStats[] = entries.map(({ pr, assignedMPG }, i) => {
     const w = weights[i]
     const v = seasonVar[i]
-    const fgCtx  = spacingMod + playmakingMod + teamQualityMod + preEff[i].fg + preEff[i].stretch
-    // 3P% display excludes spacingMod — spacing now reduces PPG via generateGameScore;
-    // applying it here too makes shooters look like they can't shoot on bad-spacing teams
+    // Both FG% and FG3% exclude spacingMod — spacing penalizes PPG via generateGameScore,
+    // not individual shot quality; including it here makes shooters look terrible on bad-spacing teams
+    const fgCtx  = playmakingMod + teamQualityMod + preEff[i].fg + preEff[i].stretch
     const fg3Ctx = playmakingMod + teamQualityMod + preEff[i].fg + preEff[i].stretch
     const ftCtx  = preEff[i].ft + preEff[i].stretch * 0.4
     return {
@@ -1202,7 +1201,7 @@ export function simulatePlayoffs(
   const pSpacingMod    = (pShooterCount - 2) * 0.006
   const pTopAST        = Math.max(...entries.map(e => e.pr.player.AST ?? 0))
   const pPlaymakingMod = Math.min(0.018, Math.max(-0.012, (pTopAST - 5) * 0.003))
-  const pTeamQualityMod = (rawRating - 70) * 0.0008
+  const pTeamQualityMod = (rawRating - 40) * 0.0008
 
   const playoffStats: PlayerSeasonStats[] = entries.map(({ pr, assignedMPG }, i) => {
     const effBoost       = playoffRingBoost(pr.player.rings ?? 0) * 0.5
