@@ -1187,15 +1187,15 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
 
   const fillDevPreset = () => {
     const preset: { name: string; era: Era; team: string; slot: SlotPosition }[] = [
-      { name: 'Damian Lillard',          era: '10s', team: 'POR', slot: 'PG' },
-      { name: 'Michael Jordan',          era: '90s', team: 'CHI', slot: 'SG' },
-      { name: 'LeBron James',            era: '10s', team: 'CLE', slot: 'SF' },
-      { name: 'Aaron Gordon',            era: '20s', team: 'DEN', slot: 'PF' },
-      { name: 'Andre Drummond',          era: '10s', team: 'DET', slot: 'C'  },
-      { name: 'Donovan Mitchell',        era: '20s', team: 'UTA', slot: 'B1' },
-      { name: 'Shai Gilgeous-Alexander', era: '20s', team: 'OKC', slot: 'B2' },
-      { name: 'Steve Nash',              era: '10s', team: 'LAL', slot: 'B3' },
-      { name: 'Trae Young',              era: '10s', team: 'ATL', slot: 'B4' },
+      { name: 'Jamal Murray',              era: '20s', team: 'DEN', slot: 'PG' },
+      { name: 'Kentavious Caldwell-Pope',  era: '20s', team: 'DEN', slot: 'SG' },
+      { name: 'Michael Porter Jr.',        era: '20s', team: 'DEN', slot: 'SF' },
+      { name: 'Aaron Gordon',              era: '20s', team: 'DEN', slot: 'PF' },
+      { name: 'Nikola Jokic',             era: '20s', team: 'DEN', slot: 'C'  },
+      { name: 'Bruce Brown',               era: '20s', team: 'DEN', slot: 'B1' },
+      { name: 'Christian Braun',           era: '20s', team: 'DEN', slot: 'B2' },
+      { name: 'Julian Strawther',          era: '20s', team: 'DEN', slot: 'B3' },
+      { name: 'Peyton Watson',             era: '20s', team: 'DEN', slot: 'B4' },
     ]
     const newSlots = emptySlots()
     const drafted = new Set<string>()
@@ -1411,7 +1411,7 @@ function DraftScreen({ simEra, players, onDraftComplete, onRestart, startInSandb
                     Random Fill
                   </Btn>
                   <Btn onClick={fillDevPreset} variant="ghost" className="w-full py-3">
-                    Preset Roster
+                    Champ Nuggets
                   </Btn>
 
                   <div>
