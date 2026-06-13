@@ -734,13 +734,14 @@ function generateGameScore(
   coachDefBonus: number,
   coachOffBonus: number,
   win: boolean,
-  simEra: Era
+  simEra: Era,
+  spacingWinFactor: number = 1.0
 ): { teamScore: number; oppScore: number } {
   const scoreCap   = ERA_SCORE_CAP[simEra]
   const scoreFloor = ERA_SCORE_FLOOR[simEra]
   const oppBase    = ERA_OPP_BASELINE[simEra]
 
-  const rawAdjTeamScore = expectedTeamScore * rebFactor * astFactor * (1 + coachOffBonus * 0.5)
+  const rawAdjTeamScore = expectedTeamScore * rebFactor * astFactor * spacingWinFactor * (1 + coachOffBonus * 0.5)
   // Clamp distribution center at (cap - 15) so elite teams still get natural variance
   // instead of piling up at the ceiling every game
   const adjTeamScore = Math.min(rawAdjTeamScore, scoreCap - 15)
@@ -883,7 +884,7 @@ export function simulateSeason(
     const win       = teamRoll > oppRoll
     games.push(win)
     if (win) wins++
-    const { teamScore, oppScore } = generateGameScore(expectedTeamScore, playerDefFactor, rebFactor, astFactor, defBonus, offBonus, win, simEra)
+    const { teamScore, oppScore } = generateGameScore(expectedTeamScore, playerDefFactor, rebFactor, astFactor, defBonus, offBonus, win, simEra, spacingWinFactor)
     totalTeamScore += teamScore
     totalOppScore += oppScore
   }
@@ -941,8 +942,8 @@ export function simulateSeason(
       FG_PCT:  Math.min(0.80, Math.max(0.20, (pr.player.FG_PCT ?? 0.45) + fgCtx)),
       FG3_PCT: PRE_THREE_PT_ERAS.includes(simEra) ? null
         : pr.player.FG3_PCT != null
-          ? Math.min(0.60, Math.max(0.15, pr.player.FG3_PCT + fgCtx + preEff[i].fg3))
-          : (() => { const b = getEstimatedFG3PCT(pr.player, simEra); return b != null ? Math.min(0.55, Math.max(0.15, b + fgCtx + preEff[i].fg3)) : null })(),
+          ? Math.min(0.60, Math.max(pr.player.FG3_PCT * 0.65, pr.player.FG3_PCT + fgCtx + preEff[i].fg3))
+          : (() => { const b = getEstimatedFG3PCT(pr.player, simEra); return b != null ? Math.min(0.55, Math.max(b * 0.65, b + fgCtx + preEff[i].fg3)) : null })(),
       FT_PCT:  Math.min(0.99, Math.max(0.30, (pr.player.FT_PCT ?? 0.70) + ftCtx)),
     }
   })
@@ -1074,7 +1075,7 @@ export function simulatePlayoffs(
 
       const oppRating = oppMean * playerDefFactor * (1 - defBonus) + randn() * OPP_SPREAD
       const win = effectiveRawRating * (1 + offBonus) * roundDefFactor * rebWinFactor * astWinFactor * spacingWinFactor * poScoringWinFactor + specialBoost + randn() * GAME_NOISE > oppRating * rebOppFactor + randn() * GAME_NOISE
-      const { teamScore, oppScore } = generateGameScore(expectedTeamScore, playerDefFactor, rebFactor, astFactor, defBonus, offBonus, win, simEra)
+      const { teamScore, oppScore } = generateGameScore(expectedTeamScore, playerDefFactor, rebFactor, astFactor, defBonus, offBonus, win, simEra, spacingWinFactor)
 
       // Per-game individual stat lines (high variance — 60–140% of expected)
       const gamePTS = expPTS.map(e => Math.max(0, e * (0.6 + Math.random() * 0.8)))
