@@ -850,7 +850,7 @@ export function simulateSeason(
   // Blend reb/ast/spacing into win probability at half their score-gen weight
   const rebWinFactor     = 1.0 + (rebFactor - 1.0) * 0.5                                          // ±3% on team roll
   const astWinFactor     = 1.0 + (astFactor - 1.0) * 0.5                                          // ±2.5% on team roll
-  const rebOppFactor     = 1.0 - (rebFactor - 1.0) * 0.40                                         // ±1.5% on opp roll (def boards)
+  const rebOppFactor     = 1.0 - (rebFactor - 1.0) * 0.25                                         // ±2.25% on opp roll (def boards)
   const shooterCount           = entries.reduce((s, e) => s + ((e.pr.player.FG3_PCT ?? 0) >= 0.375 ? e.minScale : 0), 0)
   const highVolumeShooterCount = entries.reduce((s, e) => s + ((e.pr.player.FG3M ?? 0) >= 2.9 ? e.minScale : 0), 0)
   const isPreThreePt      = simEra === '50s' || simEra === '60s' || simEra === '70s'
@@ -1009,7 +1009,7 @@ export function simulatePlayoffs(
 
   const rebWinFactor     = 1.0 + (rebFactor - 1.0) * 0.5
   const astWinFactor     = 1.0 + (astFactor - 1.0) * 0.5
-  const rebOppFactor     = 1.0 - (rebFactor - 1.0) * 0.40
+  const rebOppFactor     = 1.0 - (rebFactor - 1.0) * 0.25
   const shooterCount             = entries.reduce((s, e) => s + ((e.pr.player.FG3_PCT ?? 0) >= 0.375 ? e.minScale : 0), 0)
   const highVolumeShooterCountPO = entries.reduce((s, e) => s + ((e.pr.player.FG3M ?? 0) >= 2.9 ? e.minScale : 0), 0)
   const isPreThreePtPO      = simEra === '50s' || simEra === '60s' || simEra === '70s'
