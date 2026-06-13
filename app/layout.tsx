@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const bebasNeue = Bebas_Neue({
@@ -33,6 +34,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full bg-black text-white antialiased" style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}>
         {children}
+        <Analytics />
       </body>
     </html>
   );
