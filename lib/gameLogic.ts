@@ -832,7 +832,7 @@ export function simulateSeason(
   let totalTeamScore = 0
   let totalOppScore = 0
 
-  const OPP_BASELINE = 46
+  const OPP_BASELINE = 40
   const OPP_SPREAD   = 6
   const GAME_NOISE   = 10
 
