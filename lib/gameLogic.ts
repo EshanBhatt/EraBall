@@ -851,7 +851,7 @@ export function simulateSeason(
   const rebWinFactor     = 1.0 + (rebFactor - 1.0) * 0.5                                          // ±3% on team roll
   const astWinFactor     = 1.0 + (astFactor - 1.0) * 0.5                                          // ±2.5% on team roll
   const rebOppFactor     = 1.0 - (rebFactor - 1.0) * 0.40                                         // ±1.5% on opp roll (def boards)
-  const shooterCount      = entries.filter(e => (e.pr.player.FG3_PCT ?? 0) >= 0.375).length
+  const shooterCount      = entries.reduce((s, e) => s + ((e.pr.player.FG3_PCT ?? 0) >= 0.375 ? e.minScale : 0), 0)
   const spacingBaseline   = simEra === '20s' ? 4 : simEra === '10s' || simEra === '90s' ? 3 : 2
   const spacingDev        = shooterCount - spacingBaseline
   // Asymmetric: penalty below baseline is steeper; bonus above baseline unchanged from original
@@ -1008,7 +1008,7 @@ export function simulatePlayoffs(
   const rebWinFactor     = 1.0 + (rebFactor - 1.0) * 0.5
   const astWinFactor     = 1.0 + (astFactor - 1.0) * 0.5
   const rebOppFactor     = 1.0 - (rebFactor - 1.0) * 0.40
-  const shooterCount        = entries.filter(e => (e.pr.player.FG3_PCT ?? 0) >= 0.375).length
+  const shooterCount        = entries.reduce((s, e) => s + ((e.pr.player.FG3_PCT ?? 0) >= 0.375 ? e.minScale : 0), 0)
   const spacingBaselinePO   = simEra === '20s' ? 4 : simEra === '10s' || simEra === '90s' ? 3 : 2
   const spacingDevPO        = shooterCount - spacingBaselinePO
   const spacingPerShooterPO = spacingDevPO < 0
