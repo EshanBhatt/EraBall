@@ -941,9 +941,10 @@ export function simulateSeason(
   const seasonStats: PlayerSeasonStats[] = entries.map(({ pr, assignedMPG }, i) => {
     const w = weights[i]
     const v = seasonVar[i]
-    // FG% includes a muted spacing signal (×0.25) so poor spacing shows in the stat sheet
-    // without tanking individual shooting lines; FG3% stays unaffected (shooter skill, not floor spacing)
-    const fgCtx  = spacingMod * 0.25 + playmakingMod + teamQualityMod + preEff[i].fg + preEff[i].stretch
+    // FG% includes a muted spacing signal (×0.25) so poor spacing shows in the stat sheet;
+    // floored at −0.05 so stacked negatives (spacing + teamQuality + noise) can't crater a player's line
+    const rawFgCtx = spacingMod * 0.25 + playmakingMod + teamQualityMod + preEff[i].fg + preEff[i].stretch
+    const fgCtx  = Math.max(-0.05, rawFgCtx)
     const fg3Ctx = playmakingMod + teamQualityMod + preEff[i].fg + preEff[i].stretch
     const ftCtx  = preEff[i].ft + preEff[i].stretch * 0.4
     return {
