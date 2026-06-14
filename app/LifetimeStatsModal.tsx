@@ -23,6 +23,65 @@ function eraLabel(era: string) {
   return era === '00s' ? '2000s' : era === '10s' ? '2010s' : era === '20s' ? '2020s' : era
 }
 
+function EraRow({ era, rec, best, worst, champs, pct }: {
+  era: string; rec: { wins: number; losses: number }; best?: { wins: number; losses: number };
+  worst?: { wins: number; losses: number }; champs: number; pct: string
+}) {
+  const [hovered, setHovered] = useState(false)
+  const [sheenKey, setSheenKey] = useState(0)
+  return (
+    <div
+      onMouseEnter={() => { setHovered(true); setSheenKey(k => k + 1) }}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex', alignItems: 'center', padding: '10px 16px',
+        borderBottom: `1px solid ${G.border}`, gap: 12,
+        position: 'relative', overflow: 'hidden',
+        background: hovered ? 'rgba(201,168,76,0.05)' : 'transparent',
+        transition: 'background 0.15s ease',
+      }}
+    >
+      {hovered && <div key={sheenKey} className="stat-box-sheen" />}
+      <div style={{ fontFamily: BEBAS, fontSize: 18, color: G.gold, letterSpacing: '0.1em', width: 52 }}>{eraLabel(era)}</div>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontFamily: INTER, fontSize: 13, color: G.white }}>{rec.wins}–{rec.losses} <span style={{ color: G.grey, fontSize: 11 }}>({pct}%)</span></div>
+        <div style={{ display: 'flex', gap: 10, marginTop: 2 }}>
+          {best && <div style={{ fontSize: 10, color: G.grey }}>Best: {best.wins}–{best.losses}</div>}
+          {worst && <div style={{ fontSize: 10, color: G.greyDark }}>Worst: {worst.wins}–{worst.losses}</div>}
+        </div>
+      </div>
+      {champs > 0 && (
+        <div style={{ fontFamily: BEBAS, fontSize: 13, color: G.gold, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>
+          Championships {champs}×
+        </div>
+      )}
+    </div>
+  )
+}
+
+function HoverCard({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  const [hovered, setHovered] = useState(false)
+  const [sheenKey, setSheenKey] = useState(0)
+  return (
+    <div
+      onMouseEnter={() => { setHovered(true); setSheenKey(k => k + 1) }}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        transform: hovered ? 'scale(1.03)' : 'none',
+        transition: 'transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease',
+        boxShadow: hovered ? '0 4px 18px rgba(201,168,76,0.12)' : 'none',
+        border: `1px solid ${hovered ? 'rgba(201,168,76,0.35)' : G.border}`,
+        ...style,
+      }}
+    >
+      {hovered && <div key={sheenKey} className="stat-box-sheen" />}
+      {children}
+    </div>
+  )
+}
+
 function StatBox({ label, value, sub }: { label: string; value: string; sub?: string }) {
   const [hovered, setHovered] = useState(false)
   const [sheenKey, setSheenKey] = useState(0)
@@ -129,22 +188,22 @@ export default function LifetimeStatsModal({ onClose }: { onClose: () => void })
               {/* Most drafted player + coach */}
               <div style={{ display: 'flex', gap: 8 }}>
                 {mostDrafted && (
-                  <div style={{ background: G.surface, border: `1px solid ${G.border}`, padding: '14px 16px', flex: 1 }}>
+                  <HoverCard style={{ background: G.surface, padding: '14px 16px', flex: 1 }}>
                     <div style={{ fontFamily: INTER, fontSize: 9, color: G.grey, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 6 }}>Most Drafted Player</div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
                       <div style={{ fontFamily: BEBAS, fontSize: 24, color: G.gold, letterSpacing: '0.06em' }}>{mostDrafted.name}</div>
                       <div style={{ fontFamily: INTER, fontSize: 12, color: G.grey }}>{mostDrafted.count}×</div>
                     </div>
-                  </div>
+                  </HoverCard>
                 )}
                 {mostDraftedCoach && (
-                  <div style={{ background: G.surface, border: `1px solid ${G.border}`, padding: '14px 16px', flex: 1 }}>
+                  <HoverCard style={{ background: G.surface, padding: '14px 16px', flex: 1 }}>
                     <div style={{ fontFamily: INTER, fontSize: 9, color: G.grey, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 6 }}>Most Drafted Coach</div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
                       <div style={{ fontFamily: BEBAS, fontSize: 24, color: G.gold, letterSpacing: '0.06em' }}>{mostDraftedCoach.name}</div>
                       <div style={{ fontFamily: INTER, fontSize: 12, color: G.grey }}>{mostDraftedCoach.count}×</div>
                     </div>
-                  </div>
+                  </HoverCard>
                 )}
               </div>
 
@@ -161,21 +220,7 @@ export default function LifetimeStatsModal({ onClose }: { onClose: () => void })
                     const champs = stats.championshipsByEra[era] ?? 0
                     const pct = ((rec.wins / (rec.wins + rec.losses)) * 100).toFixed(0)
                     return (
-                      <div key={era} style={{ display: 'flex', alignItems: 'center', padding: '10px 16px', borderBottom: `1px solid ${G.border}`, gap: 12 }}>
-                        <div style={{ fontFamily: BEBAS, fontSize: 18, color: G.gold, letterSpacing: '0.1em', width: 52 }}>{eraLabel(era)}</div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontFamily: INTER, fontSize: 13, color: G.white }}>{rec.wins}–{rec.losses} <span style={{ color: G.grey, fontSize: 11 }}>({pct}%)</span></div>
-                          <div style={{ display: 'flex', gap: 10, marginTop: 2 }}>
-                            {best && <div style={{ fontSize: 10, color: G.grey }}>Best: {best.wins}–{best.losses}</div>}
-                            {worst && <div style={{ fontSize: 10, color: G.greyDark }}>Worst: {worst.wins}–{worst.losses}</div>}
-                          </div>
-                        </div>
-                        {champs > 0 && (
-                          <div style={{ fontFamily: BEBAS, fontSize: 13, color: G.gold, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>
-                            Championships {champs}×
-                          </div>
-                        )}
-                      </div>
+                      <EraRow key={era} era={era} rec={rec} best={best} worst={worst} champs={champs} pct={pct} />
                     )
                   })}
                 </div>
