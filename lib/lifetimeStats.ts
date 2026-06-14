@@ -9,6 +9,8 @@ export interface LifetimeStats {
   championshipsByEra: Partial<Record<string, number>>
   bestRecord:         { wins: number; losses: number; era: string } | null
   bestRecordByEra:    Partial<Record<string, EraRecord>>
+  worstRecord:        { wins: number; losses: number; era: string } | null
+  worstRecordByEra:   Partial<Record<string, EraRecord>>
   playerDraftCounts:  Record<string, { name: string; count: number }>
   coachDraftCounts:   Record<string, { name: string; count: number }>
   eraSpinCount:       Partial<Record<string, number>>
@@ -21,7 +23,7 @@ function defaults(): LifetimeStats {
   return {
     draftsCompleted: 0, totalWins: 0, totalLosses: 0, championshipsTotal: 0,
     recordByEra: {}, championshipsByEra: {}, bestRecord: null,
-    bestRecordByEra: {}, playerDraftCounts: {}, coachDraftCounts: {}, eraSpinCount: {}, highestTeamRating: null,
+    bestRecordByEra: {}, worstRecord: null, worstRecordByEra: {}, playerDraftCounts: {}, coachDraftCounts: {}, eraSpinCount: {}, highestTeamRating: null,
   }
 }
 
@@ -69,6 +71,13 @@ export function recordRunComplete(params: {
   const bestEra = s.bestRecordByEra[era]
   if (!bestEra || wins > bestEra.wins)
     s.bestRecordByEra[era] = { wins, losses }
+
+  if (!s.worstRecord || losses > s.worstRecord.losses)
+    s.worstRecord = { wins, losses, era }
+
+  const worstEra = s.worstRecordByEra[era]
+  if (!worstEra || losses > worstEra.losses)
+    s.worstRecordByEra[era] = { wins, losses }
 
   if (!s.highestTeamRating || teamRating > s.highestTeamRating.rating)
     s.highestTeamRating = { rating: teamRating, era }

@@ -92,6 +92,11 @@ export default function LifetimeStatsModal({ onClose }: { onClose: () => void })
                   sub={stats.bestRecord ? eraLabel(stats.bestRecord.era) : undefined}
                 />
                 <StatBox
+                  label="Worst Record"
+                  value={stats.worstRecord ? `${stats.worstRecord.wins}–${stats.worstRecord.losses}` : '—'}
+                  sub={stats.worstRecord ? eraLabel(stats.worstRecord.era) : undefined}
+                />
+                <StatBox
                   label="Highest Team Rating"
                   value={stats.highestTeamRating ? String(stats.highestTeamRating.rating) : '—'}
                   sub={stats.highestTeamRating ? eraLabel(stats.highestTeamRating.era) : undefined}
@@ -99,7 +104,7 @@ export default function LifetimeStatsModal({ onClose }: { onClose: () => void })
                 <StatBox
                   label="Favorite Era"
                   value={favoriteEra ? eraLabel(favoriteEra[0]) : '—'}
-                  sub={favoriteEra ? `${favoriteEra[1]} spins` : undefined}
+                  sub={favoriteEra ? `${favoriteEra[1]} played` : undefined}
                 />
               </div>
 
@@ -134,6 +139,7 @@ export default function LifetimeStatsModal({ onClose }: { onClose: () => void })
                   {erasWithRecord.map(era => {
                     const rec = stats.recordByEra[era]!
                     const best = stats.bestRecordByEra[era]
+                    const worst = stats.worstRecordByEra[era]
                     const champs = stats.championshipsByEra[era] ?? 0
                     const pct = ((rec.wins / (rec.wins + rec.losses)) * 100).toFixed(0)
                     return (
@@ -141,10 +147,16 @@ export default function LifetimeStatsModal({ onClose }: { onClose: () => void })
                         <div style={{ fontFamily: BEBAS, fontSize: 18, color: G.gold, letterSpacing: '0.1em', width: 52 }}>{eraLabel(era)}</div>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontFamily: INTER, fontSize: 13, color: G.white }}>{rec.wins}–{rec.losses} <span style={{ color: G.grey, fontSize: 11 }}>({pct}%)</span></div>
-                          {best && <div style={{ fontSize: 10, color: G.grey, marginTop: 1 }}>Best: {best.wins}–{best.losses}</div>}
+                          <div style={{ display: 'flex', gap: 10, marginTop: 2 }}>
+                            {best && <div style={{ fontSize: 10, color: G.grey }}>Best: {best.wins}–{best.losses}</div>}
+                            {worst && <div style={{ fontSize: 10, color: G.greyDark }}>Worst: {worst.wins}–{worst.losses}</div>}
+                          </div>
                         </div>
                         {champs > 0 && (
-                          <div style={{ fontFamily: BEBAS, fontSize: 14, color: G.gold, letterSpacing: '0.1em' }}>🏆 ×{champs}</div>
+                          <div style={{ fontFamily: BEBAS, fontSize: 13, color: G.gold, letterSpacing: '0.1em', textAlign: 'right' }}>
+                            Championships<br />
+                            <span style={{ fontSize: 18 }}>×{champs}</span>
+                          </div>
                         )}
                       </div>
                     )
